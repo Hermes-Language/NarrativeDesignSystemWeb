@@ -1,0 +1,75 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Narrative Design System/Introduction" />
+
+<div className="hermes-docs">
+  # Narrative Design System
+  
+  **Narrative Design** is a minimalist, high-contrast design system built with **Svelte 5**. It focuses on typography, clarity, and a sophisticated aesthetic using a blend of Serif and Sans-serif typefaces.
+
+  ## Design Principles
+  
+  - **Minimalism**: Remove unnecessary elements to focus on content.
+  - **High Contrast**: Use black, white, and subtle grays to create a strong visual hierarchy.
+  - **Typography First**: Leveraging *EB Garamond* for narrative content and *Inter* for functional UI.
+  - **Responsive by Default**: Every component is designed to work seamlessly from mobile to desktop.
+
+  ## Component Categories
+  
+  - **Atoms**: Basic building blocks like Buttons, Inputs, and Typography.
+  - **Layout**: Structural components like Containers, Headers, and Sidebars.
+  - **Overlay**: Contextual layers like Modals, Drawers, and Toasts.
+  - **Content**: Specialized editors and data displays (Audiobook Designer, Tables).
+  - **Media**: Audio playback and file management tools.
+
+  ## Quality & Standards
+  
+  - **Accessibility**: All components are tested for WCAG compliance using `@storybook/addon-a11y`.
+  - **Testing**: Logic and interactions are verified with Vitest and Storybook's testing addon.
+  - **Documentation**: Interactive documentation is automatically generated for every component.
+
+  ## Getting Started
+  
+  To use Hermes in your project, import components from the library:
+
+  ```typescript
+  import { Button, Input, AudiobookDesigner } from '$lib';
+  ```
+
+  All components are built using Svelte 5 Runes (`$state`, `$props`, etc.) for optimal performance and reactivity.
+</div>
+
+<style>
+  {`
+    .hermes-docs {
+      font-family: 'Inter', sans-serif;
+      max-width: 800px;
+      line-height: 1.6;
+      color: #1a1a1a;
+    }
+    .hermes-docs h1 {
+      font-family: 'EB Garamond', serif;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+    }
+    .hermes-docs h2 {
+      font-family: 'EB Garamond', serif;
+      font-size: 2rem;
+      margin-top: 3rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+    .hermes-docs h3 {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .hermes-docs code {
+      background: #f4f4f4;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+  `}
+</style>
