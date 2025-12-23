@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
+    import { Calendar, Left, Right } from '@icon-park/svg';
 
     let { 
         value = $bindable(new Date().toISOString().split('T')[0]), 
@@ -90,12 +91,9 @@
             onclick={() => showCalendar = !showCalendar}
             placeholder="Select date..."
         />
-        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
+        <div class="icon">
+            {@html Calendar({ size: 18, strokeWidth: 2 })}
+        </div>
     </div>
 
     {#if showCalendar}
@@ -104,9 +102,9 @@
         <div class="backdrop" onclick={() => showCalendar = false}></div>
         <div class="calendar" transition:fade={{ duration: 150 }}>
             <div class="calendar-header">
-                <button onclick={prevMonth}>&larr;</button>
+                <button onclick={prevMonth}>{@html Left({ size: 16 })}</button>
                 <span>{monthNames[currentMonth]} {currentYear}</span>
-                <button onclick={nextMonth}>&rarr;</button>
+                <button onclick={nextMonth}>{@html Right({ size: 16 })}</button>
             </div>
             <div class="calendar-grid">
                 {#each days as day}
@@ -166,6 +164,8 @@
         right: 1rem;
         color: #999;
         pointer-events: none;
+        display: flex;
+        align-items: center;
     }
 
     .backdrop {

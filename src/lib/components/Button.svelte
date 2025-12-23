@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Right } from '@icon-park/svg';
     let { 
         variant = 'text', 
         href = undefined, 
@@ -13,14 +14,14 @@
     <a {href} class="button {variant}" {onclick} {...rest}>
         {@render children?.()}
         {#if variant === 'text'}
-            <span class="arrow">→</span>
+            <span class="arrow">{@html Right({ size: 16 })}</span>
         {/if}
     </a>
 {:else}
     <button {type} class="button {variant}" {onclick} {...rest}>
         {@render children?.()}
         {#if variant === 'text'}
-            <span class="arrow">→</span>
+            <span class="arrow">{@html Right({ size: 16 })}</span>
         {/if}
     </button>
 {/if}

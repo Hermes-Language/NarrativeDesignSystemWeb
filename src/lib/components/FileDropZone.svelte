@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
+    import { Upload } from '@icon-park/svg';
     import Typography from './Typography.svelte';
 
     let { 
@@ -66,11 +67,7 @@
     
     <div class="content">
         <div class="icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
+            {@html Upload({ size: 32, strokeWidth: 2 })}
         </div>
         <Typography element="p" style="margin: 0; font-weight: 500;">{label}</Typography>
         <Typography element="p" style="margin: 0; opacity: 0.5; font-size: 0.85rem;">{sublabel}</Typography>

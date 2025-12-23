@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Down } from '@icon-park/svg';
     let { 
         label = "", 
         options = [], 
@@ -18,7 +19,7 @@
                 <option value={option.value}>{option.label}</option>
             {/each}
         </select>
-        <span class="arrow">↓</span>
+        <span class="arrow">{@html Down({ size: 14 })}</span>
     </div>
 </div>
 

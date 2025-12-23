@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
+    import { Down } from '@icon-park/svg';
     
     let { label = "Options", items = [] } = $props();
     
@@ -16,7 +17,7 @@
 
 <div class="dropdown">
     <button class="dropdown-trigger" onclick={toggle}>
-        {label} <span class="arrow" class:open={isOpen}>↓</span>
+        {label} <span class="arrow" class:open={isOpen}>{@html Down({ size: 14 })}</span>
     </button>
 
     {#if isOpen}

@@ -27,6 +27,7 @@
     import AudiobookDesigner from '$lib/components/AudiobookDesigner.svelte';
     import FileDropZone from '$lib/components/FileDropZone.svelte';
     import FileUploadButton from '$lib/components/FileUploadButton.svelte';
+    import LockScreen from '$lib/components/LockScreen.svelte';
 
     let email = $state("");
     let password = $state("");
@@ -36,6 +37,7 @@
     let selectedVoice = $state("en-US");
     let showModal = $state(false);
     let showDrawer = $state(false);
+    let showLockScreen = $state(false);
     let activeTab = $state("tab1");
 
     let selectedDate = $state("2025-12-23");
@@ -179,6 +181,7 @@
                 <div class="row">
                     <Button variant="box" onclick={() => showModal = true}>Open Modal</Button>
                     <Button variant="box" onclick={() => showDrawer = true}>Open Drawer</Button>
+                    <Button variant="box" onclick={() => showLockScreen = true}>Open Lock Screen</Button>
                     <Dropdown label="Actions" items={[
                         { label: 'Edit Profile', onClick: () => addToast('Edit clicked') },
                         { label: 'Settings', href: '/settings' },
@@ -238,6 +241,14 @@
 <Toast />
 
 <FileUploader onUpload={handleFileUpload} />
+
+<LockScreen bind:show={showLockScreen}>
+    <div style="text-align: right; max-width: 600px;">
+        <Typography element="h1" style="font-size: 5rem; line-height: 1.1; font-weight: 700; margin: 0; color: #1a1a1a;">
+            Do something<br/>to<br/>change the world
+        </Typography>
+    </div>
+</LockScreen>
 
 <style>
     main {

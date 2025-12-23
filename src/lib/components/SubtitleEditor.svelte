@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade, slide } from 'svelte/transition';
+    import { Close, Right } from '@icon-park/svg';
     import Button from './Button.svelte';
     import Typography from './Typography.svelte';
     import TimeInput from './TimeInput.svelte';
@@ -60,7 +61,7 @@
                         bind:value={sub.start} 
                         onchange={(val: string) => updateSubtitle(sub.id, 'start', val)}
                     />
-                    <span class="separator">→</span>
+                    <span class="separator">{@html Right({ size: 14 })}</span>
                     <TimeInput 
                         bind:value={sub.end} 
                         onchange={(val: string) => updateSubtitle(sub.id, 'end', val)}
@@ -75,9 +76,7 @@
                 ></textarea>
 
                 <button class="remove-btn" onclick={() => removeSubtitle(sub.id)} aria-label="Remove">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12"></path>
-                    </svg>
+                    {@html Close({ size: 16 })}
                 </button>
             </div>
         {/each}

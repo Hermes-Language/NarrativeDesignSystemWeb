@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
+    import { Close } from '@icon-park/svg';
     import Typography from './Typography.svelte';
     import FileUploadButton from './FileUploadButton.svelte';
     import { addToast } from './Toast.svelte';
@@ -29,7 +30,9 @@
             placeholder="Reader Name"
         />
         {#if onremove}
-            <button class="remove-btn" onclick={onremove} aria-label="Remove block">×</button>
+            <button class="remove-btn" onclick={onremove} aria-label="Remove block">
+                {@html Close({ size: 16 })}
+            </button>
         {/if}
     </div>
 

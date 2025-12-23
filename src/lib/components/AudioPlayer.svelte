@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { PlayOne, PauseOne, VolumeMute, VolumeNotice } from '@icon-park/svg';
 
     let { 
         src = "", 
@@ -60,13 +61,9 @@
     <div class="controls">
         <button class="play-pause" onclick={togglePlay} aria-label={paused ? 'Play' : 'Pause'}>
             {#if paused}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"></path>
-                </svg>
+                {@html PlayOne({ size: 24, fill: 'currentColor' })}
             {:else}
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
-                </svg>
+                {@html PauseOne({ size: 24, fill: 'currentColor' })}
             {/if}
         </button>
 
@@ -87,13 +84,9 @@
         <div class="volume-container">
             <button class="mute-toggle" onclick={() => muted = !muted}>
                 {#if muted || volume === 0}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"></path>
-                    </svg>
+                    {@html VolumeMute({ size: 20, theme: 'outline' })}
                 {:else}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>
+                    {@html VolumeNotice({ size: 20, theme: 'outline' })}
                 {/if}
             </button>
             <input 

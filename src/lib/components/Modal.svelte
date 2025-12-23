@@ -1,6 +1,7 @@
 <script lang="ts">
     import { fade, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
+    import { Close } from '@icon-park/svg';
     
     let { 
         show = $bindable(false), 
@@ -31,9 +32,7 @@
             <div class="modal-header">
                 <span class="modal-title">{title}</span>
                 <button class="close-icon" onclick={close} aria-label="Close">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
+                    {@html Close({ size: 24 })}
                 </button>
             </div>
             <div class="modal-body">
