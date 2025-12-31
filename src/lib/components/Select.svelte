@@ -57,6 +57,12 @@
         padding-right: 2rem;
     }
 
+    @media (max-width: 600px) {
+        select {
+            font-size: 1.2rem;
+        }
+    }
+
     .arrow {
         position: absolute;
         right: 0;

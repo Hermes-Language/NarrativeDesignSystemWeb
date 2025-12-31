@@ -31,4 +31,6 @@ export { default as AudiobookBlock } from './components/AudiobookBlock.svelte';
 export { default as AudiobookDesigner } from './components/AudiobookDesigner.svelte';
 export { default as FileDropZone } from './components/FileDropZone.svelte';
 export { default as FileUploadButton } from './components/FileUploadButton.svelte';
+export { default as StateSwitch } from './components/StateSwitch.svelte';
 export { default as LockScreen } from './components/LockScreen.svelte';
+export { default as ThemeToggle } from './components/ThemeToggle.svelte';

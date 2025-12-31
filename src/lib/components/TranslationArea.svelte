@@ -75,7 +75,7 @@
 
     @media (max-width: 768px) {
         .side {
-            padding: 1rem 0;
+            padding: 1.5rem 0;
             min-height: 200px;
         }
     }
@@ -105,8 +105,15 @@
         padding-top: 1rem;
     }
 
+    @media (max-width: 768px) {
+        textarea {
+            font-size: 1.2rem;
+            min-height: 120px;
+        }
+    }
+
     textarea::placeholder {
-        color: #bbb;
+        color: var(--secondary-text);
     }
 
     .result-text {
@@ -117,10 +124,24 @@
         padding-top: 1rem;
     }
 
+    @media (max-width: 768px) {
+        .result-text {
+            font-size: 1.2rem;
+            min-height: 120px;
+        }
+    }
+
     .toolbar {
         display: flex;
         gap: 1.5rem;
         padding: 2rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .toolbar {
+            padding: 1rem 0;
+            gap: 1rem;
+        }
     }
 
     .toolbar button {

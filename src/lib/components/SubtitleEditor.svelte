@@ -86,16 +86,22 @@
 <style>
     .subtitle-editor {
         border: 1px solid var(--border-color);
-        background: #fff;
+        background: var(--bg-color);
         display: flex;
         flex-direction: column;
         width: 100%;
-        max-height: 500px;
+        max-height: 600px;
+    }
+
+    @media (max-width: 600px) {
+        .subtitle-editor {
+            max-height: none;
+        }
     }
 
     .header {
         padding: 1rem 1.5rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -112,7 +118,7 @@
     .empty-state {
         padding: 2rem;
         text-align: center;
-        color: #999;
+        color: var(--secondary-text);
     }
 
     .subtitle-item {
@@ -120,8 +126,8 @@
         flex-direction: column;
         gap: 0.5rem;
         padding: 1rem;
-        background: #fcfcfc;
-        border: 1px solid #eee;
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
         position: relative;
     }
 
@@ -132,19 +138,20 @@
         flex-wrap: wrap;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
         .time-inputs {
-            flex-direction: column;
-            align-items: flex-start;
+            justify-content: space-between;
+            width: 100%;
         }
         
         .separator {
-            display: none;
+            transform: rotate(90deg);
+            margin: 0 auto;
         }
     }
 
     .separator {
-        color: #ccc;
+        color: var(--secondary-text);
     }
 
     .text-field {
@@ -152,10 +159,15 @@
         font-size: 1rem;
         border: none;
         background: transparent;
+        color: var(--text-color);
         resize: none;
         min-height: 60px;
         padding: 0;
         outline: none;
+    }
+
+    .text-field::placeholder {
+        color: var(--secondary-text);
     }
 
     .remove-btn {
@@ -164,7 +176,7 @@
         right: 0.5rem;
         background: none;
         border: none;
-        color: #ccc;
+        color: var(--secondary-text);
         cursor: pointer;
         padding: 4px;
         transition: color 0.2s;
@@ -182,6 +194,6 @@
         background: transparent;
     }
     .subtitle-list::-webkit-scrollbar-thumb {
-        background: #eee;
+        background: var(--border-color);
     }
 </style>

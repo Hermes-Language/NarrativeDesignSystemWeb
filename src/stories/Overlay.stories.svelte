@@ -13,11 +13,30 @@
   });
 </script>
 
+<script>
+  let showModal = $state(false);
+  let showDrawer = $state(false);
+</script>
+
 <Story name="Modal & Drawer">
   <div style="display: flex; gap: 1rem;">
-    <Button onclick={() => {}}>Open Modal (Demo)</Button>
-    <Button variant="box" onclick={() => {}}>Open Drawer (Demo)</Button>
+    <Button onclick={() => showModal = true}>Open Modal</Button>
+    <Button variant="box" onclick={() => showDrawer = true}>Open Drawer</Button>
   </div>
+
+  <Modal bind:show={showModal} title="Interactive Modal">
+    <Typography element="p">This is an interactive modal triggered by the button above.</Typography>
+    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+        <Button variant="box" onclick={() => showModal = false}>Close</Button>
+    </div>
+  </Modal>
+
+  <Drawer bind:show={showDrawer} title="Interactive Drawer">
+    <Typography element="p">This is an interactive drawer sliding from the right.</Typography>
+    <div style="margin-top: 1.5rem;">
+        <Button variant="box" onclick={() => showDrawer = false}>Close Drawer</Button>
+    </div>
+  </Drawer>
   
   <!-- Static previews for documentation -->
   <div style="margin-top: 2rem; border: 1px solid #eee; padding: 2rem; position: relative; height: 300px; overflow: hidden;">

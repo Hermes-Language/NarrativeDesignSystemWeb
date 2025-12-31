@@ -63,8 +63,9 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(247, 243, 240, 0.85);
-        backdrop-filter: blur(8px);
+        background-color: var(--overlay-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -90,5 +91,15 @@
         font-size: 2.5rem;
         color: var(--text-color);
         letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 600px) {
+        .text {
+            font-size: 1.5rem;
+        }
+        :global(.drop-zone svg) {
+            width: 32px !important;
+            height: 32px !important;
+        }
     }
 </style>

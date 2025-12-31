@@ -9,7 +9,7 @@
 <style>
     .card {
         border: 1px solid var(--border-color);
-        background-color: white;
+        background-color: var(--bg-color);
         width: 100%;
     }
 </style>

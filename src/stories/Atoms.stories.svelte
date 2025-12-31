@@ -10,6 +10,8 @@
   import Slider from '../lib/components/Slider.svelte';
   import TimeInput from '../lib/components/TimeInput.svelte';
   import DatePicker from '../lib/components/DatePicker.svelte';
+  import StateSwitch from '../lib/components/StateSwitch.svelte';
+  import ThemeToggle from '../lib/components/ThemeToggle.svelte';
 
   const { Story } = defineMeta({
     title: 'Hermes/Atoms',
@@ -52,11 +54,40 @@
   </div>
 </Story>
 
+<Story name="State Switch">
+  <div style="display: flex; flex-direction: column; gap: 2rem; max-width: 400px;">
+    <div>
+      <Typography element="p" style="margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Two States</Typography>
+      <StateSwitch 
+        options={[{id: 'prompt', label: 'Prompt'}, {id: 'control', label: 'Control'}]} 
+        activeId="prompt"
+      />
+    </div>
+    <div>
+      <Typography element="p" style="margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Three States</Typography>
+      <StateSwitch 
+        options={[
+          {id: 'low', label: 'Low'}, 
+          {id: 'medium', label: 'Medium'}, 
+          {id: 'high', label: 'High'}
+        ]} 
+        activeId="medium"
+      />
+    </div>
+  </div>
+</Story>
+
 <Story name="Status & Identity">
   <div style="display: flex; gap: 2rem; align-items: center;">
     <Badge>Active</Badge>
     <Badge variant="outline">Pending</Badge>
-    <Avatar src="https://i.pravatar.cc/150?u=hermes" alt="User" size="md" />
-    <Avatar fallback="JD" size="md" />
+    <Avatar src="https://i.pravatar.cc/150?u=hermes" name="User" size="md" />
+    <Avatar name="JD" size="md" />
+  </div>
+</Story>
+
+<Story name="Theme Toggle">
+  <div style="padding: 2rem; display: flex; justify-content: center; background: var(--bg-color);">
+    <ThemeToggle />
   </div>
 </Story>

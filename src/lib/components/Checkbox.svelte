@@ -41,7 +41,7 @@
     }
 
     .checkbox-container:hover input ~ .checkmark {
-        background-color: #eee;
+        background-color: var(--hover-bg);
     }
 
     input:checked ~ .checkmark {
@@ -56,7 +56,7 @@
         top: 2px;
         width: 5px;
         height: 10px;
-        border: solid white;
+        border: solid var(--bg-color);
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
     }

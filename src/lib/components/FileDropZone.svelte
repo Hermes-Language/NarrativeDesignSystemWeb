@@ -86,7 +86,7 @@
         width: 100%;
         min-height: 160px;
         border: 1px dashed var(--border-color);
-        background: #fafafa;
+        background: var(--panel-bg);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -97,7 +97,7 @@
     }
 
     .file-drop-zone:hover {
-        border-color: #000;
+        border-color: var(--text-color);
         background: #f5f5f5;
     }
 

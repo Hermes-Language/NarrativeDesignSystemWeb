@@ -49,21 +49,34 @@
         pointer-events: none;
     }
 
+    @media (max-width: 600px) {
+        .toast-container {
+            bottom: 1rem;
+            right: 1rem;
+            left: 1rem;
+        }
+        .toast {
+            min-width: 0;
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+    }
+
     .toast {
         pointer-events: auto;
         background: var(--text-color);
-        color: white;
+        color: var(--bg-color);
         padding: 1rem 1.5rem;
         border: 1px solid var(--border-color);
         font-family: var(--font-serif);
         font-size: 1.1rem;
         min-width: 200px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    .success { background: #1a1a1a; border-left: 4px solid #4caf50; }
-    .error { background: #1a1a1a; border-left: 4px solid #f44336; }
-    .info { background: #1a1a1a; border-left: 4px solid #2196f3; }
+    .success { background: var(--text-color); border-left: 4px solid #4caf50; }
+    .error { background: var(--text-color); border-left: 4px solid #f44336; }
+    .info { background: var(--text-color); border-left: 4px solid #2196f3; }
 
     .message {
         display: block;

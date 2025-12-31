@@ -27,8 +27,23 @@
     .tabs-header {
         display: flex;
         gap: 3rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--hover-bg);
         margin-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .tabs-header {
+            gap: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs-header::-webkit-scrollbar {
+            display: none;
+        }
+        .tab-button {
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
     }
 
     .tab-button {

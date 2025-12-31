@@ -46,11 +46,11 @@
 
     td {
         padding: 1.5rem 1rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--hover-bg);
         font-size: 1.2rem;
     }
 
     tr:hover td {
-        background-color: rgba(0,0,0,0.02);
+        background-color: var(--hover-bg);
     }
 </style>

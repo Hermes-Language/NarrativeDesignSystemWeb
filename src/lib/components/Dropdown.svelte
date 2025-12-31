@@ -102,10 +102,10 @@
     }
 
     .dropdown-item:hover {
-        background-color: rgba(0,0,0,0.05);
+        background-color: var(--hover-bg);
     }
 
     .dropdown-item:not(:last-child) {
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-color);
     }
 </style>

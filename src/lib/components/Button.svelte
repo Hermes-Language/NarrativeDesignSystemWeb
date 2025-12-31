@@ -42,6 +42,16 @@
         transition: opacity 0.2s;
     }
 
+    @media (max-width: 600px) {
+        .button {
+            font-size: 1.2rem;
+        }
+        .box {
+            font-size: 1rem;
+            padding: 0.6rem 1.2rem;
+        }
+    }
+
     .button:hover {
         opacity: 0.7;
     }

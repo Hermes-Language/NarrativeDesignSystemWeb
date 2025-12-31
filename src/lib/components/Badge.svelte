@@ -17,12 +17,12 @@
         padding: 0.25rem 0.75rem;
         font-family: var(--font-serif);
         font-size: 0.9rem;
-        border-radius: 2px;
+        border-radius: 0;
     }
 
     .default {
         background-color: var(--text-color);
-        color: white;
+        color: var(--bg-color);
     }
 
     .outline {
@@ -34,6 +34,6 @@
         width: 6px;
         height: 6px;
         background-color: currentColor;
-        border-radius: 50%;
+        border-radius: 0;
     }
 </style>

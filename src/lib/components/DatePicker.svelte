@@ -138,7 +138,7 @@
     .label {
         font-family: var(--font-serif);
         font-size: 0.9rem;
-        color: #666;
+        color: var(--secondary-text);
     }
 
     .input-wrapper {
@@ -152,7 +152,8 @@
         padding: 0.75rem 1rem;
         padding-right: 2.5rem;
         border: 1px solid var(--border-color);
-        background: #fff;
+        background: var(--panel-bg);
+        color: var(--text-color);
         font-family: var(--font-sans);
         font-size: 1rem;
         cursor: pointer;
@@ -162,7 +163,7 @@
     .icon {
         position: absolute;
         right: 1rem;
-        color: #999;
+        color: var(--secondary-text);
         pointer-events: none;
         display: flex;
         align-items: center;
@@ -182,12 +183,27 @@
         top: 100%;
         left: 0;
         margin-top: 0.5rem;
-        background: #fff;
+        background: var(--panel-bg);
         border: 1px solid var(--border-color);
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         z-index: 101;
         padding: 1rem;
         width: 280px;
+    }
+
+    @media (max-width: 600px) {
+        .calendar {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            max-width: 320px;
+        }
+        .backdrop {
+            background: var(--overlay-bg);
+            backdrop-filter: blur(4px);
+        }
     }
 
     .calendar-header {
@@ -203,7 +219,7 @@
         border: none;
         cursor: pointer;
         padding: 0.5rem;
-        color: #666;
+        color: var(--text-color);
     }
 
     .calendar-grid {
@@ -215,7 +231,7 @@
     .day-name {
         text-align: center;
         font-size: 0.75rem;
-        color: #999;
+        color: var(--secondary-text);
         padding: 0.5rem 0;
         font-family: var(--font-sans);
     }
@@ -230,19 +246,20 @@
         cursor: pointer;
         font-family: var(--font-sans);
         font-size: 0.85rem;
+        color: var(--text-color);
         transition: all 0.2s;
     }
 
     .day-cell:hover {
-        background: #f5f5f5;
+        background: var(--hover-bg);
     }
 
     .day-cell.other-month {
-        color: #ccc;
+        opacity: 0.3;
     }
 
     .day-cell.selected {
-        background: var(--border-color);
-        color: #fff;
+        background: var(--text-color);
+        color: var(--bg-color);
     }
 </style>

@@ -63,7 +63,7 @@
     .link-btn {
         background: none;
         border: none;
-        color: #999;
+        color: var(--secondary-text);
         text-decoration: underline;
         cursor: pointer;
         padding: 0;
@@ -73,6 +73,6 @@
     }
 
     .link-btn:hover {
-        color: #000;
+        color: var(--text-color);
     }
 </style>

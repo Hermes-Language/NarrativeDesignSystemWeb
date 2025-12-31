@@ -45,9 +45,10 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.1);
+        background-color: var(--overlay-bg);
         z-index: 1500;
-        backdrop-filter: blur(1px);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
     }
 
     .drawer-content {
@@ -55,12 +56,20 @@
         top: 0;
         height: 100%;
         width: 400px;
+        max-width: 100%;
         background: var(--bg-color);
         border-left: 1px solid var(--border-color);
         padding: 2rem;
         box-shadow: -10px 0 30px rgba(0,0,0,0.05);
         display: flex;
         flex-direction: column;
+    }
+
+    @media (max-width: 600px) {
+        .drawer-content {
+            width: 100%;
+            padding: 1.5rem;
+        }
     }
 
     .left {

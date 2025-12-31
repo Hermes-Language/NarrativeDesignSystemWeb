@@ -51,7 +51,7 @@
         align-items: center;
         font-family: var(--font-serif);
         font-size: 0.9rem;
-        color: #666;
+        color: var(--secondary-text);
     }
 
     .value {
@@ -71,14 +71,15 @@
         position: absolute;
         width: 100%;
         height: 2px;
-        background: #eee;
+        background: var(--border-color);
+        opacity: 0.2;
         pointer-events: none;
     }
 
     .fill {
         position: absolute;
         height: 100%;
-        background: var(--border-color);
+        background: var(--text-color);
     }
 
     input[type="range"] {
@@ -101,13 +102,12 @@
         -webkit-appearance: none;
         height: 16px;
         width: 16px;
-        border-radius: 50%;
-        background: #fff;
+        border-radius: 0;
+        background: var(--panel-bg);
         border: 1px solid var(--border-color);
-        margin-top: 0; /* Resetting to let flex/height handle it if possible, but usually needs calculation */
+        margin-top: 0;
         transform: translateY(0);
         transition: transform 0.1s ease, background-color 0.2s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     /* For Webkit, we often need to center the thumb manually if the track is custom */
@@ -120,10 +120,16 @@
     input[type="range"]::-moz-range-thumb {
         height: 14px;
         width: 14px;
-        border-radius: 50%;
-        background: #fff;
-        border: 2px solid var(--border-color);
+        border-radius: 0;
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
         transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-moz-range-track {
+        height: 20px;
+        display: flex;
+        align-items: center;
     }
 
     input[type="range"]:active::-webkit-slider-thumb {

@@ -17,9 +17,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #eee;
+        background-color: var(--hover-bg);
         border: 1px solid var(--border-color);
-        border-radius: 50%;
+        border-radius: 0;
         overflow: hidden;
         font-family: var(--font-serif);
     }

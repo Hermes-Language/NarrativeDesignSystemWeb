@@ -1,6 +1,7 @@
 <script module>
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import AudiobookDesigner from '../lib/components/AudiobookDesigner.svelte';
+  import AudiobookBlock from '../lib/components/AudiobookBlock.svelte';
 
   const { Story } = defineMeta({
     title: 'Hermes/Content/AudiobookDesigner',
@@ -33,3 +34,19 @@
 <Story name="Empty" args={{
   blocks: []
 }} />
+
+<Story name="Single Block">
+  <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <AudiobookBlock 
+      data={{
+        id: '1',
+        label: 'Narrator',
+        content: 'This is a single block of text for the audiobook designer.',
+        prompt: 'Read with clarity.',
+        voice: 'en-US-Standard-A',
+        emotion: 0.5
+      }}
+      onremove={() => console.log('Remove clicked')}
+    />
+  </div>
+</Story>

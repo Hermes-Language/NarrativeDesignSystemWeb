@@ -54,24 +54,37 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(247, 243, 240, 0.8); /* 使用设计稿背景色作为半透明遮罩 */
+        background-color: var(--overlay-bg);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 2000;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
     }
 
     .modal-box {
-        background: white;
+        background: var(--panel-bg);
         border: 1px solid var(--border-color);
         width: 600px;
+        max-width: 90vw;
         min-height: 400px;
         padding: 2.5rem;
         display: flex;
         flex-direction: column;
         position: relative;
         box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 600px) {
+        .modal-box {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            padding: 1.5rem;
+            border: none;
+        }
     }
 
     .modal-header {

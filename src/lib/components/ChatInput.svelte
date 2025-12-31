@@ -21,9 +21,8 @@
     .chat-input-container {
         position: relative;
         border: 1px solid var(--border-color);
-        background: white;
+        background: var(--bg-color);
         padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
     textarea {
@@ -35,16 +34,30 @@
         font-size: 1.5rem;
         resize: none;
         background: transparent;
+        color: var(--text-color);
+    }
+
+    @media (max-width: 600px) {
+        .chat-input-container {
+            padding: 1rem;
+        }
+        textarea {
+            font-size: 1.2rem;
+            min-height: 100px;
+        }
+        .send-button {
+            bottom: 1rem;
+            right: 1rem;
+        }
     }
 
     .send-button {
         position: absolute;
         bottom: 1.5rem;
         right: 1.5rem;
-        background: black;
-        color: white;
+        background: var(--text-color);
+        color: var(--bg-color);
         border: none;
-        border-radius: 50%;
         width: 40px;
         height: 40px;
         display: flex;

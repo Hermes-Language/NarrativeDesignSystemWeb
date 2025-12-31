@@ -80,13 +80,13 @@
     .time-label {
         font-family: var(--font-serif);
         font-size: 0.9rem;
-        color: #666;
+        color: var(--secondary-text);
     }
 
     .time-fields {
         display: flex;
         align-items: center;
-        background: #f9f9f9;
+        background: var(--panel-bg);
         border: 1px solid var(--border-color);
         padding: 0.25rem 0.5rem;
         gap: 0.25rem;
@@ -107,12 +107,11 @@
     .sep {
         font-family: var(--font-sans);
         font-size: 0.9rem;
-        color: #ccc;
+        color: var(--secondary-text);
         user-select: none;
     }
 
     input:focus {
-        color: #000;
-        font-weight: 500;
+        font-weight: 600;
     }
 </style>

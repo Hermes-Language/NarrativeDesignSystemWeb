@@ -5,7 +5,7 @@
     let {
         show = $bindable(false),
         children,
-        background = "#f7f3f0"
+        background = "var(--bg-color)"
     } = $props();
 
     let startY = 0;
@@ -107,7 +107,7 @@
         align-items: center;
         justify-content: center;
         gap: 1.5rem;
-        color: #999;
+        color: var(--secondary-text);
         padding: 1rem;
         z-index: 10;
         user-select: none;
@@ -118,7 +118,7 @@
         flex: 1;
         max-width: 300px;
         height: 1px;
-        background: #ddd;
+        background: var(--border-color);
     }
 
     .unlock-text {
@@ -135,5 +135,16 @@
         justify-content: center;
         align-items: flex-end;
         padding: 10% 10% 15% 10%;
+    }
+
+    @media (max-width: 600px) {
+        .inner-content {
+            align-items: center;
+            padding: 10%;
+        }
+        :global(.inner-content h1) {
+            font-size: 2.5rem !important;
+            text-align: center !important;
+        }
     }
 </style>

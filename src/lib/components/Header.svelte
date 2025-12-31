@@ -2,14 +2,30 @@
     import { fade, slide } from 'svelte/transition';
     import { Down, User } from '@icon-park/svg';
     import Navbar from './Navbar.svelte';
+    import ThemeToggle from './ThemeToggle.svelte';
+    import { onMount } from 'svelte';
 
     const navItems = [
-        { name: 'Translate', href: '/translate' },
+        { 
+            name: 'Translate', 
+            children: [
+                { name: 'Text Translation', href: '/translate/text' },
+                { name: 'Document Translation', href: '/translate/doc' },
+                { name: 'Website Translation', href: '/translate/web' }
+            ]
+        },
         { name: 'Dictionary', href: '/dictionary' },
-        { name: 'Assistant', href: '/assistant' },
+        { 
+            name: 'Assistant', 
+            children: [
+                { name: 'Writing Assistant', href: '/assistant/writing' },
+                { name: 'Coding Assistant', href: '/assistant/coding' }
+            ]
+        },
         { name: 'Reader', href: '/reader' },
         { name: 'Editor', href: '/editor' },
-        { name: 'Advanced', href: '/advanced' }
+        { name: 'Advanced', href: '/advanced' },
+        { name: 'Design System', href: '/document' }
     ];
 
     let isMenuOpen = $state(false);
@@ -36,10 +52,13 @@
         <Navbar items={navItems} />
     </div>
 
-    <div class="profile">
-        <button aria-label="Profile">
-            {@html User({ size: 24 })}
-        </button>
+    <div class="actions">
+        <ThemeToggle />
+        <div class="profile">
+            <button aria-label="Profile">
+                {@html User({ size: 24 })}
+            </button>
+        </div>
     </div>
 
     {#if isMenuOpen}
@@ -54,13 +73,33 @@
 
 <style>
     header {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
         align-items: center;
         padding: 1.5rem 2rem;
         background-color: var(--bg-color);
         position: relative;
         z-index: 1000;
+        gap: 2rem;
+    }
+
+    .nav-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        justify-self: end;
+    }
+
+    @media (max-width: 1024px) {
+        header {
+            gap: 1rem;
+            padding: 1.5rem 1rem;
+        }
     }
 
     .mobile-spacer {
@@ -97,10 +136,7 @@
         font-weight: 700;
         text-decoration: none;
         color: var(--text-color);
-    }
-
-    .nav-container {
-        display: block;
+        white-space: nowrap;
     }
 
     .mobile-menu {
@@ -109,6 +145,8 @@
 
     @media (max-width: 768px) {
         header {
+            display: flex;
+            justify-content: space-between;
             padding: 1rem;
         }
 
@@ -147,20 +185,21 @@
             top: 100%;
             left: 0;
             right: 0;
-            background: #fff;
-            padding: 1rem 2rem;
+            background: var(--bg-color);
+            padding: 0;
             border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
             z-index: 1001;
         }
 
         .menu-overlay {
             position: fixed;
-            top: 0;
+            top: 4rem; /* Height of header */
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.05);
+            background-color: var(--overlay-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 999;
         }
     }

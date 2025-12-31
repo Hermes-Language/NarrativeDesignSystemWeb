@@ -65,6 +65,6 @@
 
     input:checked + .slider:before {
         transform: translateX(26px);
-        background-color: white;
+        background-color: var(--bg-color);
     }
 </style>

@@ -3,6 +3,7 @@
     import { Close } from '@icon-park/svg';
     import Typography from './Typography.svelte';
     import FileUploadButton from './FileUploadButton.svelte';
+    import StateSwitch from './StateSwitch.svelte';
     import { addToast } from './Toast.svelte';
 
     interface BlockData {
@@ -44,22 +45,14 @@
         ></textarea>
 
         <div class="sidebar">
-            <div class="tabs">
-                <button 
-                    class="tab" 
-                    class:active={activeTab === 'prompt'} 
-                    onclick={() => activeTab = 'prompt'}
-                >
-                    Prompt
-                </button>
-                <button 
-                    class="tab" 
-                    class:active={activeTab === 'control'} 
-                    onclick={() => activeTab = 'control'}
-                >
-                    Control
-                </button>
-            </div>
+            <StateSwitch 
+                options={[
+                    { id: 'prompt', label: 'Prompt' },
+                    { id: 'control', label: 'Control' }
+                ]} 
+                bind:activeId={activeTab}
+                class="sidebar-tabs"
+            />
 
             <div class="tab-content">
                 {#if activeTab === 'prompt'}
@@ -124,15 +117,21 @@
         min-width: 100px;
     }
 
+    @media (max-width: 600px) {
+        .label-input {
+            font-size: 1.4rem;
+        }
+    }
+
     .label-input:focus {
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .remove-btn {
         background: none;
         border: none;
         font-size: 1.5rem;
-        color: #ccc;
+        color: var(--secondary-text);
         cursor: pointer;
         padding: 0 0.5rem;
     }
@@ -157,7 +156,8 @@
 
     .main-content {
         flex: 1;
-        background: #fff;
+        background: var(--panel-bg);
+        color: var(--text-color);
         border: none;
         padding: 1.5rem;
         font-family: var(--font-serif);
@@ -169,9 +169,10 @@
 
     .sidebar {
         width: 240px;
-        background: #fff;
+        background: var(--panel-bg);
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
     }
 
     @media (max-width: 768px) {
@@ -181,27 +182,23 @@
         }
     }
 
-    .tabs {
-        display: flex;
-        border-bottom: 1px solid var(--border-color);
+    :global(.sidebar-tabs) {
+        border: none !important;
+        width: 100% !important;
     }
 
-    .tab {
-        flex: 1;
-        padding: 0.5rem;
-        border: none;
-        background: #fff;
-        font-family: var(--font-sans);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        cursor: pointer;
-        transition: all 0.2s;
+    :global(.sidebar-tabs .state-item) {
+        border-top: none !important;
+        border-left: none !important;
+        border-radius: 0 !important;
+        font-size: 1.1rem !important;
+        padding: 0.6rem !important;
+        font-family: var(--font-serif) !important;
+        box-sizing: border-box !important;
     }
 
-    .tab.active {
-        background: #000;
-        color: #fff;
+    :global(.sidebar-tabs .state-item:last-child) {
+        border-right: none !important;
     }
 
     .tab-content {
@@ -209,6 +206,7 @@
         padding: 1rem;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
     }
 
     .prompt-area {
@@ -216,9 +214,10 @@
         border: none;
         resize: none;
         outline: none;
+        background: transparent;
         font-family: var(--font-serif);
         font-size: 0.9rem;
-        color: #666;
+        color: var(--secondary-text);
         font-style: italic;
     }
 
@@ -242,11 +241,13 @@
 
     .underlined-input {
         border: none;
-        border-bottom: 1px solid #000;
+        border-bottom: 1px solid var(--border-color);
         width: 30px;
         text-align: right;
         font-family: var(--font-sans);
         font-size: 0.8rem;
         outline: none;
+        background: transparent;
+        color: var(--text-color);
     }
 </style>

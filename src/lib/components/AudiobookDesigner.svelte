@@ -78,6 +78,15 @@
         text-align: center;
     }
 
+    @media (max-width: 600px) {
+        .designer-header {
+            margin-bottom: 1.5rem;
+        }
+        :global(.designer-header h2) {
+            font-size: 1.5rem !important;
+        }
+    }
+
     .blocks-list {
         display: flex;
         flex-direction: column;
@@ -109,12 +118,12 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: #999;
+        color: var(--secondary-text);
         cursor: pointer;
         white-space: nowrap;
     }
 
     .add-btn:hover {
-        color: #000;
+        color: var(--text-color);
     }
 </style>

@@ -58,6 +58,12 @@
         width: 100%;
     }
 
+    @media (max-width: 600px) {
+        input, textarea {
+            font-size: 1.2rem;
+        }
+    }
+
     textarea {
         resize: vertical;
         min-height: 100px;
@@ -69,7 +75,7 @@
     }
 
     .underline input::placeholder {
-        color: #ccc;
+        color: var(--secondary-text);
     }
 
     .box input, .box textarea {

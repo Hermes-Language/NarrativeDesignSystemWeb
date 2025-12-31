@@ -29,6 +29,8 @@
     import FileUploadButton from '$lib/components/FileUploadButton.svelte';
     import LockScreen from '$lib/components/LockScreen.svelte';
 
+    import StateSwitch from '$lib/components/StateSwitch.svelte';
+
     let email = $state("");
     let password = $state("");
     let chatValue = $state("");
@@ -39,6 +41,7 @@
     let showDrawer = $state(false);
     let showLockScreen = $state(false);
     let activeTab = $state("tab1");
+    let currentState = $state("State 1");
 
     let selectedDate = $state("2025-12-23");
     let selectedTime = $state("14:30:00");
@@ -94,6 +97,15 @@
         
         <div class="showcase">
             <section>
+                <Typography element="h3">State Switch</Typography>
+                <StateSwitch 
+                    states={["State 1", "State 2", "State 3"]} 
+                    bind:activeState={currentState} 
+                />
+                <Typography element="p" style="margin-top: 1rem">Active: {currentState}</Typography>
+            </section>
+
+            <section>
                 <Typography element="h3">Buttons</Typography>
                 <div class="row">
                     <Button>Text Button</Button>
@@ -130,10 +142,13 @@
 
             <section>
                 <Typography element="h3">Specialized Components</Typography>
-                <Typography element="p">Language Switcher:</Typography>
+                <Typography element="p">Language Switcher (with Mode Switch):</Typography>
                 <LanguageSwitcher />
+
+                <Typography element="p" style="margin-top: 2rem">Language Switcher (Simple):</Typography>
+                <LanguageSwitcher showModeSwitch={false} />
                 
-                <Typography element="p">Chat Input:</Typography>
+                <Typography element="p" style="margin-top: 2rem">Chat Input:</Typography>
                 <ChatInput bind:value={chatValue} />
             </section>
 
@@ -255,6 +270,20 @@
         padding-top: 4rem;
     }
 
+    .welcome-section {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        margin-bottom: 6rem;
+    }
+
+    @media (max-width: 600px) {
+        .welcome-section {
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+    }
+
     .history-list {
         display: flex;
         flex-direction: column;
@@ -273,6 +302,15 @@
         border-top: 1px solid #eee;
     }
 
+    @media (max-width: 600px) {
+        hr {
+            margin: 4rem 0;
+        }
+        main {
+            padding-top: 2rem;
+        }
+    }
+
     .showcase {
         display: flex;
         flex-direction: column;
@@ -283,6 +321,7 @@
         display: flex;
         gap: 2rem;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     section {
