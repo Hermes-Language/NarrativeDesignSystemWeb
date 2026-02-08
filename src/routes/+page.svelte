@@ -28,8 +28,8 @@
     import FileDropZone from '$lib/components/FileDropZone.svelte';
     import FileUploadButton from '$lib/components/FileUploadButton.svelte';
     import LockScreen from '$lib/components/LockScreen.svelte';
-
     import StateSwitch from '$lib/components/StateSwitch.svelte';
+    import Timeline from '$lib/components/Timeline.svelte';
 
     let email = $state("");
     let password = $state("");
@@ -42,6 +42,16 @@
     let showLockScreen = $state(false);
     let activeTab = $state("tab1");
     let currentState = $state("State 1");
+
+    let timelineMode = $state<'TTS' | 'Subtitle'>('TTS');
+    let timelineTracks = $state([
+        { id: '1', speaker: 'Narrator', blocks: [
+            { id: 'b1', start: 2, duration: 8, text: 'Once upon a time in a digital world...', state: 'rendered' as const, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
+        ], prompt: '', voice: 'en-US', emotion: 0.5 },
+        { id: '2', speaker: 'Hero', blocks: [
+            { id: 'b2', start: 12, duration: 5, text: 'Is anyone there?', state: 'none' as const }
+        ], prompt: '', voice: 'en-US', emotion: 0.7 }
+    ]);
 
     let selectedDate = $state("2025-12-23");
     let selectedTime = $state("14:30:00");
@@ -88,6 +98,36 @@
 
     <Container size="large">
         <AudiobookDesigner bind:blocks={audiobookBlocks} />
+    </Container>
+
+    <Container size="large">
+        <div class="timeline-demo">
+            <div class="section-header">
+                <Typography element="h2">Timeline Editor</Typography>
+                <div class="mode-switch">
+                    <Typography element="span">Mode: </Typography>
+                    <StateSwitch 
+                        states={['TTS', 'Subtitle']} 
+                        bind:activeState={timelineMode} 
+                    />
+                </div>
+            </div>
+            
+            <Timeline 
+                mode={timelineMode} 
+                bind:tracks={timelineTracks} 
+                globalAudioUrl="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+            />
+            
+            <div class="timeline-hint">
+                <Typography element="p">
+                    <b>Tips:</b> Double-click on a track to add a block. 
+                    {#if timelineMode === 'TTS'}
+                        Select a block and press <b>'R'</b> to render.
+                    {/if}
+                </Typography>
+            </div>
+        </div>
     </Container>
 
     <hr />
@@ -275,6 +315,28 @@
         flex-direction: column;
         gap: 3rem;
         margin-bottom: 6rem;
+    }
+
+    .timeline-demo {
+        margin: 4rem 0;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .mode-switch {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .timeline-hint {
+        margin-top: 1rem;
+        opacity: 0.7;
     }
 
     @media (max-width: 600px) {

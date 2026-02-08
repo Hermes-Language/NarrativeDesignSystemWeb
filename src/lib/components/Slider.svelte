@@ -5,7 +5,8 @@
         max = 100, 
         step = 1, 
         label = "",
-        showValue = true
+        showValue = true,
+        ...rest
     } = $props();
 
     let percentage = $derived(((value - min) / (max - min)) * 100);
@@ -32,6 +33,7 @@
             {step} 
             bind:value 
             aria-label={label || 'Slider'}
+            {...rest}
         />
     </div>
 </div>
@@ -40,14 +42,16 @@
     .slider-container {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.25rem;
         width: 100%;
-        max-width: 300px;
     }
 
     .slider-header {
         display: flex;
         justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.8;
         align-items: center;
         font-family: var(--font-serif);
         font-size: 0.9rem;

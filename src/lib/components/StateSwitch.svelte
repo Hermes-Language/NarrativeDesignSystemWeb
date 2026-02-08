@@ -2,6 +2,7 @@
     interface Option {
         id: string;
         label: string;
+        icon?: string;
     }
 
     let { 
@@ -15,7 +16,7 @@
     const items = $derived(
         options.length > 0 
             ? options 
-            : states.map(s => ({ id: s, label: s }))
+            : states.map(s => ({ id: s, label: s } as Option))
     );
 
     function select(id: string) {
@@ -29,10 +30,15 @@
         <button 
             class="state-item" 
             class:active={(activeId || activeState) === item.id}
-            onclick={() => select(item.id)}
+            onpointerdown={() => select(item.id)}
             type="button"
+            title={item.id}
         >
-            {item.label}
+            {#if item.icon}
+                {@html item.icon}
+            {:else}
+                {item.label}
+            {/if}
         </button>
     {/each}
 </div>
@@ -41,16 +47,16 @@
     .state-switch {
         display: flex;
         width: 100%;
-        background: var(--panel-bg);
+        background: #fff;
         box-sizing: border-box;
     }
 
     .state-item {
         flex: 1;
         padding: 0.6rem 1rem;
-        border: 1px solid var(--border-color);
-        background: var(--panel-bg);
-        color: var(--text-color);
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
         font-family: var(--font-serif);
         font-size: 1.1rem;
         cursor: pointer;
@@ -62,12 +68,14 @@
         justify-content: center;
         margin-left: -1px;
         position: relative;
+        border-radius: 0;
     }
 
     @media (max-width: 600px) {
         .state-item {
             font-size: 0.9rem;
             padding: 0.5rem;
+            min-height: 44px; /* Touch target size */
         }
     }
 
@@ -76,14 +84,13 @@
     }
 
     .state-item.active {
-        background: var(--text-color);
-        color: var(--bg-color);
+        background: #000;
+        color: #fff;
         z-index: 1;
-        border-bottom-color: var(--text-color);
     }
 
     .state-item:hover:not(.active) {
-        background: var(--hover-bg);
+        background: #f5f5f5;
         z-index: 2;
     }
 </style>

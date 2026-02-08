@@ -2,7 +2,7 @@
     import { fade } from 'svelte/transition';
     import { Close } from '@icon-park/svg';
     import Typography from './Typography.svelte';
-    import FileUploadButton from './FileUploadButton.svelte';
+    import SettingsModule from './SettingsModule.svelte';
     import StateSwitch from './StateSwitch.svelte';
     import { addToast } from './Toast.svelte';
 
@@ -56,33 +56,22 @@
 
             <div class="tab-content">
                 {#if activeTab === 'prompt'}
-                    <textarea 
-                        class="prompt-area" 
-                        bind:value={data.prompt} 
-                        placeholder="Write your prompt here..."
-                    ></textarea>
+                    <SettingsModule 
+                        type="prompt" 
+                        data={{ prompt: data.prompt }} 
+                        onchange={(updates: any) => data.prompt = updates.prompt}
+                    />
                 {:else}
                     <div class="control-panel" in:fade={{ duration: 150 }}>
-                        <div class="control-item">
-                            <span class="label">Voice:</span>
-                            <FileUploadButton 
-                                variant="link" 
-                                label={data.voice || "Click Here to Upload"} 
-                                onUpload={(f: File) => {
-                                    data.voice = f.name;
-                                    addToast(`Voice file "${f.name}" uploaded`, 'success');
-                                }} 
-                            />
-                        </div>
-                        <div class="control-item">
-                            <span class="label">Emotion:</span>
-                            <input 
-                                type="number" 
-                                step="0.1" 
-                                bind:value={data.emotion} 
-                                class="underlined-input"
-                            />
-                        </div>
+                        <SettingsModule 
+                            type="controls" 
+                            useVoiceUpload={true}
+                            data={{ voice: data.voice, emotion: data.emotion }} 
+                            onchange={(updates: any) => {
+                                if (updates.voice) data.voice = updates.voice;
+                                if (updates.emotion !== undefined) data.emotion = updates.emotion;
+                            }}
+                        />
                     </div>
                 {/if}
             </div>
@@ -203,51 +192,25 @@
 
     .tab-content {
         flex: 1;
-        padding: 1rem;
+        padding: 0.5rem;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
+        overflow: hidden;
     }
 
-    .prompt-area {
-        flex: 1;
-        border: none;
-        resize: none;
-        outline: none;
-        background: transparent;
-        font-family: var(--font-serif);
-        font-size: 0.9rem;
-        color: var(--secondary-text);
-        font-style: italic;
+    :global(.audiobook-block .settings-module) {
+        height: 100%;
+    }
+
+    :global(.audiobook-block .settings-module .input-full) {
+        height: 100%;
+        min-height: 120px;
     }
 
     .control-panel {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-    }
-
-    .control-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-family: var(--font-sans);
-        font-size: 0.8rem;
-    }
-
-    .label {
-        font-weight: 600;
-    }
-
-    .underlined-input {
-        border: none;
-        border-bottom: 1px solid var(--border-color);
-        width: 30px;
-        text-align: right;
-        font-family: var(--font-sans);
-        font-size: 0.8rem;
-        outline: none;
-        background: transparent;
-        color: var(--text-color);
+        height: 100%;
     }
 </style>

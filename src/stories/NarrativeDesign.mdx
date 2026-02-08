@@ -14,12 +14,39 @@ import { Meta } from "@storybook/addon-docs/blocks";
   - **Typography First**: Leveraging *EB Garamond* for narrative content and *Inter* for functional UI.
   - **Responsive by Default**: Every component is designed to work seamlessly from mobile to desktop.
 
+  ## Mobile & Touch Strategy (Pro Optimization)
+  
+  The system has been specifically optimized for professional content creation on mobile devices and tablets, particularly focusing on a **Landscape-First** workflow.
+  
+  - **Pointer-Based Interaction**: All interactive components utilize the `PointerEvents` API rather than traditional mouse events. This ensures ultra-responsive feedback on touch screens and full support for stylus/pen input.
+  - **Orientation Awareness**: The design adapts its layout density based on device orientation. In landscape mode, headers become flattened to maximize vertical editing space.
+  - **Touch Targets**: Standard touch targets are maintained at a minimum of 44px height for accessibility, while providing high-precision modes (like the Razor tool) that allow for 1px adjustments via dedicated touch handles.
+  - **Industrial Visuals**: Maintaining a zero-radius, high-contrast aesthetic that remains legible even on smaller mobile displays.
+
+  ## Keyboard Shortcuts (Timeline)
+
+  The Pro Editor supports a full set of industry-standard keyboard shortcuts for high-speed editing:
+
+  | Shortcut | Action |
+  | :--- | :--- |
+  | `Space` | Play / Pause |
+  | `V` | Pointer Tool (Selection) |
+  | `H` | Hand Tool (Pan) |
+  | `C` | Razor Tool (Cut/Split) |
+  | `P` | Pen Tool (Draw Block) |
+  | `Delete` / `Backspace` | Delete Selected Blocks |
+  | `Ctrl + A` | Select All Blocks |
+  | `A` | Add Audio File |
+  | `R` | Render TTS (Selected) |
+  | `Ctrl + Z` | Undo |
+  | `Ctrl + Shift + Z` | Redo |
+
   ## Component Categories
   
   - **Atoms**: Basic building blocks like Buttons, Inputs, and Typography.
   - **Layout**: Structural components like Containers, Headers, and Sidebars.
   - **Overlay**: Contextual layers like Modals, Drawers, and Toasts.
-  - **Content**: Specialized editors and data displays (Audiobook Designer, Tables).
+  - **Content**: Specialized editors (Timeline Pro, Audiobook Designer).
   - **Media**: Audio playback and file management tools.
 
   ## Quality & Standards

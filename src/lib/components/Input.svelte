@@ -38,19 +38,22 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.75rem;
     }
 
     label {
         font-family: var(--font-serif);
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
         color: var(--secondary-text);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     input, textarea {
-        font-family: var(--font-serif);
-        font-size: 1.5rem;
+        font-family: var(--font-sans);
+        font-size: 0.8rem;
         background: none;
         border: none;
         outline: none;
@@ -60,18 +63,18 @@
 
     @media (max-width: 600px) {
         input, textarea {
-            font-size: 1.2rem;
+            font-size: 0.75rem;
         }
     }
 
     textarea {
         resize: vertical;
-        min-height: 100px;
+        min-height: 48px;
     }
 
     .underline input {
         border-bottom: 1px solid var(--border-color);
-        padding: 0.5rem 0;
+        padding: 0.25rem 0;
     }
 
     .underline input::placeholder {
@@ -80,10 +83,10 @@
 
     .box input, .box textarea {
         border: 1px solid var(--border-color);
-        padding: 1rem;
+        padding: 0.4rem;
     }
 
     .box textarea {
-        min-height: 200px;
+        min-height: 80px;
     }
 </style>

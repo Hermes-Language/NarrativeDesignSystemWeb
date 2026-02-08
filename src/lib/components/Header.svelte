@@ -24,8 +24,7 @@
         },
         { name: 'Reader', href: '/reader' },
         { name: 'Editor', href: '/editor' },
-        { name: 'Advanced', href: '/advanced' },
-        { name: 'Design System', href: '/document' }
+        { name: 'Advanced', href: '/advanced' }
     ];
 
     let isMenuOpen = $state(false);

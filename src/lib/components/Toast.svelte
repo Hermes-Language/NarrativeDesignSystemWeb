@@ -21,7 +21,8 @@
 
 <script lang="ts">
     import { flip } from 'svelte/animate';
-    import { fade, fly } from 'svelte/transition';
+    import { fly } from 'svelte/transition';
+    import { cubicInOut, cubicOut } from 'svelte/easing';
 </script>
 
 <div class="toast-container">
@@ -29,10 +30,13 @@
         <div 
             class="toast {toast.type}" 
             animate:flip={{ duration: 300 }}
-            in:fly={{ y: 20, duration: 400 }}
-            out:fade={{ duration: 200 }}
+            in:fly={{ x: 100, duration: 600, easing: cubicOut }}
+            out:fly={{ x: 100, duration: 400, easing: cubicInOut }}
         >
-            <span class="message">{toast.message}</span>
+            <div class="toast-content">
+                <span class="message-reveal">{toast.message}</span>
+            </div>
+            <div class="toast-line"></div>
         </div>
     {/each}
 </div>
@@ -40,45 +44,77 @@
 <style>
     .toast-container {
         position: fixed;
-        bottom: 2rem;
-        right: 2rem;
+        bottom: 1.5rem;
+        right: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0;
         z-index: 2000;
         pointer-events: none;
     }
 
-    @media (max-width: 600px) {
-        .toast-container {
-            bottom: 1rem;
-            right: 1rem;
-            left: 1rem;
+    .toast {
+        position: relative;
+        pointer-events: auto;
+        background: var(--bg-color);
+        color: var(--text-color);
+        padding: 0.75rem 1.5rem;
+        border: 1px solid var(--border-color);
+        border-right: none;
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        min-width: 280px;
+        margin-bottom: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        box-shadow: -4px 4px 15px rgba(0,0,0,0.08);
+    }
+
+    :global([data-theme='dark']) .toast {
+        background: var(--bg-color);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        border-right: none;
+        box-shadow: -4px 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .success .toast-line { background: #4caf50; }
+    .error .toast-line { background: #f44336; }
+    .info .toast-line { background: #2196f3; }
+
+    .toast-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
+
+    .toast-content {
+        overflow: hidden;
+    }
+
+    .message-reveal {
+        display: block;
+        animation: text-reveal 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        transform: translateY(100%);
+    }
+
+    @keyframes text-reveal {
+        0% {
+            transform: translateY(100%);
         }
+        100% {
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 600px) {
         .toast {
             min-width: 0;
-            width: 100%;
-            font-size: 1rem;
+            width: 100vw;
             padding: 0.75rem 1rem;
         }
-    }
-
-    .toast {
-        pointer-events: auto;
-        background: var(--text-color);
-        color: var(--bg-color);
-        padding: 1rem 1.5rem;
-        border: 1px solid var(--border-color);
-        font-family: var(--font-serif);
-        font-size: 1.1rem;
-        min-width: 200px;
-    }
-
-    .success { background: var(--text-color); border-left: 4px solid #4caf50; }
-    .error { background: var(--text-color); border-left: 4px solid #f44336; }
-    .info { background: var(--text-color); border-left: 4px solid #2196f3; }
-
-    .message {
-        display: block;
     }
 </style>
