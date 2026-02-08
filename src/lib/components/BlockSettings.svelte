@@ -8,6 +8,7 @@
         type = 'tts', // 'tts' | 'audio'
         fileName = '',
         playbackRate = 1.0,
+        volume = 1.0,
         onchange,
         onreplace
     } = $props();
@@ -20,7 +21,7 @@
                 component: SettingsModule, 
                 props: { 
                     type: 'audio_control', 
-                    data: { fileName, playbackRate },
+                    data: { fileName, playbackRate, volume },
                     onreplace: onreplace
                 } 
             }
@@ -29,13 +30,13 @@
                 id: 'Content', 
                 label: 'Content', 
                 component: SettingsModule, 
-                props: { type: 'content', data: { text } } 
+                props: { type: 'content', data: { text, volume } } 
             },
             ...(mode === 'TTS' ? [{ 
                 id: 'Override', 
                 label: 'Override', 
                 component: SettingsModule, 
-                props: { type: 'overrides', data: {} } 
+                props: { type: 'overrides', data: { volume } } 
             }] : [])
         ])
     ]);

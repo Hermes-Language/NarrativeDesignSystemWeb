@@ -22,6 +22,8 @@
         type?: 'tts' | 'audio'; // New: block type
         fileName?: string; // New: audio block original file name
         playbackRate?: number; // Speed: 0.5 - 2.0
+        volume?: number; // Volume: 0.0 - 1.0 (New)
+        envelope?: { time: number, value: number }[]; // Envelope points (New)
         sourceDuration?: number; // To limit trimming
     }
 
@@ -60,6 +62,11 @@
     let pendingBlockType = $state<'tts' | 'audio'>('tts');
     let isFullScreen = $state(false);
     let isMobileMenuOpen = $state(false);
+
+    // Envelope drawing state
+    let isDraggingEnvelope = $state(false);
+    let envelopeTargetBlockId = $state<string | null>(null);
+    let envelopePointIndex = $state<number | null>(null);
 
     // History System for Undo/Redo
     let history = $state<string[]>([]); 
@@ -175,6 +182,12 @@
             if (targetBlock) {
                 const relativeStart = playheadTime - targetBlock.start;
                 
+                // Calculate and apply volume automation
+                const blockBaseVolume = targetBlock.volume ?? 1.0;
+                const envGain = getEnvelopeValue(targetBlock.envelope, relativeStart, 1.0);
+                // HTML5 Audio volume is capped at 1.0
+                audioElement.volume = Math.max(0, Math.min(1.0, blockBaseVolume * envGain));
+
                 if (currentTtsBlock?.id !== targetBlock.id) {
                     currentTtsBlock = targetBlock;
                     audioElement.src = targetBlock.audioUrl!;
@@ -206,6 +219,27 @@
                 currentTtsBlock = null;
             }
         }
+    }
+
+    function getEnvelopeValue(envelope: {time: number, value: number}[] | undefined, time: number, defaultVal: number): number {
+        if (!envelope || envelope.length === 0) return defaultVal;
+        
+        const sorted = [...envelope].sort((a, b) => a.time - b.time);
+        
+        // Before the first point, use the first point's value
+        if (time <= sorted[0].time) return sorted[0].value;
+        // After the last point, use the last point's value (Correct NLE behavior)
+        if (time >= sorted[sorted.length - 1].time) return sorted[sorted.length - 1].value;
+        
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const p1 = sorted[i];
+            const p2 = sorted[i + 1];
+            if (time >= p1.time && time <= p2.time) {
+                const t = (time - p1.time) / (p2.time - p1.time);
+                return p1.value + (p2.value - p1.value) * t;
+            }
+        }
+        return defaultVal;
     }
 
     function handleAudioUpdate() {
@@ -277,7 +311,9 @@
             duration: estimateVisualDuration(defaultText),
             text: defaultText,
             state: 'none',
-            type: pendingBlockType
+            type: pendingBlockType,
+            volume: 1.0,
+            envelope: []
         };
 
         tracks = tracks.map(t => {
@@ -492,6 +528,56 @@
         }
     }
 
+    function handleEnvelopePointerDown(blockId: string, trackId: string, e: PointerEvent) {
+        e.stopPropagation();
+        
+        const blockRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const relativeX = e.clientX - blockRect.left;
+        const relativeY = e.clientY - blockRect.top;
+        
+        const block = tracks.find(t => t.id === trackId)?.blocks.find(b => b.id === blockId);
+        if (!block) return;
+        
+        const timeOffset = (relativeX / blockRect.width) * block.duration;
+        const value = 1.5 - (relativeY / blockRect.height * 1.5); // Range 0-1.5
+        
+        let envelope = [...(block.envelope || [])];
+        
+        // Check if there is an existing point very close (simple hit test)
+        const closePointIndex = envelope.findIndex(p => Math.abs(p.time - timeOffset) < 0.1);
+        
+        if (closePointIndex === -1) {
+            // Add new point
+            envelope.push({ time: timeOffset, value: Math.max(0, Math.min(1.5, value)) });
+            envelope.sort((a, b) => a.time - b.time);
+            updateBlock(blockId, { envelope });
+            
+            // Start dragging the new point
+            const newIndex = envelope.findIndex(p => p.time === timeOffset);
+            startDraggingEnvelopePoint(blockId, trackId, newIndex, e);
+        } else {
+            startDraggingEnvelopePoint(blockId, trackId, closePointIndex, e);
+        }
+    }
+
+    let cachedBlockRect: DOMRect | null = null;
+    function startDraggingEnvelopePoint(blockId: string, trackId: string, index: number, e: PointerEvent) {
+        e.stopPropagation();
+        isDraggingEnvelope = true;
+        envelopeTargetBlockId = blockId;
+        envelopePointIndex = index;
+        dragTrackId = trackId;
+        
+        // Cache the block rect for smoother dragging
+        const target = (e.currentTarget as HTMLElement).parentElement; 
+        if (target) {
+            const blockEl = target.closest('.timeline-block');
+            if (blockEl) {
+                cachedBlockRect = blockEl.getBoundingClientRect();
+            }
+        }
+    }
+
     function startScrubbing(e: PointerEvent) {
         e.preventDefault();
         isScrubbing = true;
@@ -516,6 +602,36 @@
     function handleMouseMove(e: PointerEvent) {
         if (isScrubbing) {
             updatePlayhead(e);
+            return;
+        }
+
+        if (isDraggingEnvelope && envelopeTargetBlockId && envelopePointIndex !== null && dragTrackId && cachedBlockRect) {
+            const block = tracks.find(t => t.id === dragTrackId)?.blocks.find(b => b.id === envelopeTargetBlockId);
+            if (!block) return;
+            
+            const relativeX = (e.clientX - cachedBlockRect.left);
+            const relativeY = (e.clientY - cachedBlockRect.top);
+            
+            const newTime = Math.max(0, Math.min(block.duration, (relativeX / cachedBlockRect.width) * block.duration));
+            const newValue = Math.max(0, Math.min(1.5, 1.5 - (relativeY / cachedBlockRect.height * 1.5)));
+
+            const newEnvelope = [...(block.envelope || [])];
+            newEnvelope[envelopePointIndex] = { time: newTime, value: newValue };
+            
+            tracks = tracks.map(t => {
+                if (t.id === dragTrackId) {
+                    return {
+                        ...t,
+                        blocks: t.blocks.map(b => {
+                            if (b.id === envelopeTargetBlockId) {
+                                return { ...b, envelope: newEnvelope };
+                            }
+                            return b;
+                        })
+                    };
+                }
+                return t;
+            });
             return;
         }
 
@@ -647,6 +763,25 @@
             syncAudioToPlayhead();
         }
         
+        if (isDraggingEnvelope && envelopeTargetBlockId && dragTrackId) {
+            // Final sort of points
+            tracks = tracks.map(t => {
+                if (t.id === dragTrackId) {
+                    return {
+                        ...t,
+                        blocks: t.blocks.map(b => {
+                            if (b.id === envelopeTargetBlockId && b.envelope) {
+                                return { ...b, envelope: [...b.envelope].sort((a, b) => a.time - b.time) };
+                            }
+                            return b;
+                        })
+                    };
+                }
+                return t;
+            });
+            pushHistory();
+        }
+
         // Capture IDs before clearing them
         const targetId = dragTargetId;
         const trackId = dragTrackId;
@@ -656,6 +791,9 @@
         isDragging = false;
         isResizing = false;
         isScrubbing = false;
+        isDraggingEnvelope = false;
+        envelopeTargetBlockId = null;
+        envelopePointIndex = null;
         dragTargetId = null;
 
         if (wasDragging && targetId && trackId) {
@@ -1118,7 +1256,13 @@
     });
 </script>
 
-<div class="timeline-container" class:is-fullscreen={isFullScreen}>
+<div class="timeline-container" 
+    class:is-fullscreen={isFullScreen}
+    class:tool-pointer={currentTool === 'pointer'}
+    class:tool-hand={currentTool === 'hand'}
+    class:tool-razor={currentTool === 'razor'}
+    class:tool-pen={currentTool === 'pen'}
+>
     <audio 
         bind:this={audioElement} 
         ontimeupdate={handleAudioUpdate}
@@ -1388,12 +1532,17 @@
                             class:dragging={dragTargetId === block.id}
                             class:is-tts={mode === 'TTS'}
                             class:is-audio={block.type === 'audio'}
+                            class:is-rendered={block.state === 'rendered'}
                             class:tool-razor={currentTool === 'razor'}
                             style="left: {block.start * pixelsPerSecond}px; width: {block.duration * pixelsPerSecond}px; touch-action: none;"
                             onclick={(e) => selectBlock(block.id, track.id, e)}
                             ondblclick={(e) => editBlock(block.id, e)}
                             onpointerdown={(e) => {
-                                if (currentTool === 'pointer') startDragging(block.id, track.id, e);
+                                if (currentTool === 'pointer') {
+                                    startDragging(block.id, track.id, e);
+                                } else if (currentTool === 'pen') {
+                                    handleEnvelopePointerDown(block.id, track.id, e);
+                                }
                             }}
                             ondragstart={(e) => e.preventDefault()}
                             oncontextmenu={(e) => {
@@ -1409,6 +1558,53 @@
                                         src={block.audioUrl} 
                                         color={block.type === 'audio' ? '#ff9800' : '#4caf50'} 
                                     />
+                                </div>
+                            {/if}
+
+                            <!-- Envelope SVG Layer -->
+                            {#if currentTool === 'pen'}
+                                <svg class="envelope-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    {#if !block.envelope || block.envelope.length === 0}
+                                        <line 
+                                            x1="0" y1="{100 - ((block.volume || 1.0) / 1.5 * 100)}" 
+                                            x2="100" y2="{100 - ((block.volume || 1.0) / 1.5 * 100)}" 
+                                            stroke="rgba(0, 123, 255, 0.5)" 
+                                            stroke-width="1.5"
+                                            stroke-dasharray="4 2"
+                                            vector-effect="non-scaling-stroke"
+                                        />
+                                    {:else}
+                                        {@const sortedEnv = [...block.envelope].sort((a,b) => a.time - b.time)}
+                                        <polyline 
+                                            points="
+                                                0,{100 - (sortedEnv[0].value / 1.5 * 100)} 
+                                                {sortedEnv.map(p => `${(p.time / block.duration) * 100},${100 - (p.value / 1.5 * 100)}`).join(' ')} 
+                                                100,{100 - (sortedEnv[sortedEnv.length - 1].value / 1.5 * 100)}
+                                            " 
+                                            fill="none" 
+                                            stroke="#007bff" 
+                                            stroke-width="2.5"
+                                            stroke-linejoin="round"
+                                            stroke-linecap="round"
+                                            vector-effect="non-scaling-stroke"
+                                        />
+                                    {/if}
+                                </svg>
+                                
+                                <!-- Use SVG group for better relative local coords during drag -->
+                                <div class="envelope-handles-layer">
+                                    {#each block.envelope || [] as point, i (i)}
+                                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                                        <div 
+                                            class="envelope-handle"
+                                            class:active={isDraggingEnvelope && envelopePointIndex === i && envelopeTargetBlockId === block.id}
+                                            style="left: {(point.time / block.duration) * 100}%; top: {100 - (point.value / 1.5 * 100)}%;"
+                                            onpointerdown={(e) => {
+                                                e.stopPropagation();
+                                                startDraggingEnvelopePoint(block.id, track.id, i, e);
+                                            }}
+                                        ></div>
+                                    {/each}
                                 </div>
                             {/if}
                             
@@ -2228,6 +2424,11 @@
         box-shadow: 0 0 0 1px #ff3e00 inset;
     }
 
+    .timeline-block.tool-pen:hover {
+        border-color: #007bff;
+        box-shadow: 0 0 0 1px #007bff inset;
+    }
+
     .timeline-block.dragging {
         transition: none !important;
         z-index: 1000;
@@ -2236,8 +2437,16 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-    .timeline-block.is-tts {
-        border-radius: 2px;
+    .timeline-block.is-rendered {
+        border-color: rgba(76, 175, 80, 0.3);
+    }
+
+    .timeline-block.is-rendered:hover {
+        border-color: #4caf50;
+    }
+
+    .timeline-block.is-rendered .envelope-overlay {
+        opacity: 0.8; /* Ensure envelope is clearly visible on green blocks */
     }
 
     .block-waveform {
@@ -2252,6 +2461,17 @@
         display: flex;
         align-items: center;
         overflow: hidden;
+        transition: opacity 0.2s;
+    }
+
+    .tool-pen .block-waveform {
+        opacity: 0.15; /* Dim waveform in pen mode to focus on envelope */
+        filter: blur(4px);
+    }
+
+    .tool-pen .block-info {
+        opacity: 0.2;
+        filter: blur(2px);
     }
 
     :global([data-theme='dark']) .block-waveform {
@@ -2322,6 +2542,51 @@
         width: 0;
         height: 0;
         z-index: 10000;
+    }
+
+    .envelope-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    .tool-pen .envelope-overlay {
+        background: rgba(0, 123, 255, 0.03); 
+    }
+
+    .envelope-handles-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+        will-change: transform; /* Hardware acceleration */
+    }
+
+    .envelope-handle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #fff;
+        border: 2px solid #007bff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        pointer-events: auto;
+        transition: border-color 0.1s;
+    }
+
+    .envelope-handle:hover, .envelope-handle.active {
+        background: #007bff;
+        border-color: #fff;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        z-index: 11;
     }
 
     .edit-input {

@@ -62,7 +62,14 @@
         </div>
     {:else if type === 'overrides'}
         <div class="controls-grid">
-            <div class="info-text">Individual overrides coming soon.</div>
+            <Slider 
+                label="Volume"
+                min={0}
+                max={1.5}
+                step={0.05}
+                value={data.volume ?? 1.0}
+                oninput={(e: any) => onchange?.({ volume: parseFloat(e.target.value) })}
+            />
             <Slider 
                 label="Emphasis"
                 min={0}
@@ -80,6 +87,15 @@
                 <span class="filename">{data.fileName}</span>
             </div>
             
+            <Slider 
+                label="Volume"
+                min={0}
+                max={1.5}
+                step={0.05}
+                value={data.volume ?? 1.0}
+                oninput={(e: any) => onchange?.({ volume: parseFloat(e.target.value) })}
+            />
+
             <Slider 
                 label="Playback Speed"
                 min={0.5}
