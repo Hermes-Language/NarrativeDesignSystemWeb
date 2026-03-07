@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { Down } from '@icon-park/svg';
+	import { ChevronDown } from "@lucide/svelte";
+
     let { 
         label = "", 
         options = [], 
@@ -15,11 +16,11 @@
     {/if}
     <div class="select-wrapper">
         <select id={label} bind:value {...rest}>
-            {#each options as option}
+            {#each options as option (option.value)}
                 <option value={option.value}>{option.label}</option>
             {/each}
         </select>
-        <span class="arrow">{@html Down({ size: 14 })}</span>
+        <span class="arrow"><ChevronDown size={14} /></span>
     </div>
 </div>
 

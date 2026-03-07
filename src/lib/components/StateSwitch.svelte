@@ -1,8 +1,11 @@
 <script lang="ts">
+    import type { Component } from 'svelte';
+    import type { IconProps } from '@lucide/svelte';
+
     interface Option {
         id: string;
         label: string;
-        icon?: string;
+        icon?: Component<IconProps>;
     }
 
     let { 
@@ -26,7 +29,7 @@
 </script>
 
 <div class="state-switch {className}">
-    {#each items as item}
+    {#each items as item (item.id)}
         <button 
             class="state-item" 
             class:active={(activeId || activeState) === item.id}
@@ -35,7 +38,8 @@
             title={item.id}
         >
             {#if item.icon}
-                {@html item.icon}
+                {@const Icon = item.icon}
+                <Icon size={16} />
             {:else}
                 {item.label}
             {/if}

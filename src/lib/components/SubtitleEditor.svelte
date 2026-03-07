@@ -1,9 +1,10 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import { fade, slide } from 'svelte/transition';
-    import { Close, Right } from '@icon-park/svg';
     import Button from './Button.svelte';
     import Typography from './Typography.svelte';
     import TimeInput from './TimeInput.svelte';
+	import { ArrowRight, X } from '@lucide/svelte';
 
     interface Subtitle {
         id: string;
@@ -43,14 +44,14 @@
 
 <div class="subtitle-editor">
     <div class="header">
-        <Typography element="h3">Subtitles</Typography>
-        <Button variant="text" onclick={addSubtitle}>+ Add Block</Button>
+        <Typography element="h3">{m.subtitles()}</Typography>
+        <Button variant="text" onclick={addSubtitle}>+ {m.add_block()}</Button>
     </div>
 
     <div class="subtitle-list">
         {#if subtitles.length === 0}
             <div class="empty-state" transition:fade>
-                <Typography element="p">No subtitles yet. Click "Add Block" to start.</Typography>
+                <Typography element="p">{m.no_subtitles()}</Typography>
             </div>
         {/if}
 
@@ -61,7 +62,7 @@
                         bind:value={sub.start} 
                         onchange={(val: string) => updateSubtitle(sub.id, 'start', val)}
                     />
-                    <span class="separator">{@html Right({ size: 14 })}</span>
+                    <span class="separator"><ArrowRight size=14 /></span>
                     <TimeInput 
                         bind:value={sub.end} 
                         onchange={(val: string) => updateSubtitle(sub.id, 'end', val)}
@@ -71,12 +72,12 @@
                 <textarea 
                     value={sub.text} 
                     oninput={(e) => updateSubtitle(sub.id, 'text', (e.target as HTMLTextAreaElement).value)}
-                    placeholder="Enter subtitle text..."
+                    placeholder={m.enter_subtitle_text()}
                     class="text-field"
                 ></textarea>
 
-                <button class="remove-btn" onclick={() => removeSubtitle(sub.id)} aria-label="Remove">
-                    {@html Close({ size: 16 })}
+                <button class="remove-btn" onclick={() => removeSubtitle(sub.id)} aria-label={m.remove()}>
+                    <X size=16 />
                 </button>
             </div>
         {/each}

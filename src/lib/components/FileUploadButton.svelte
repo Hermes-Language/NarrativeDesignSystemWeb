@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Upload } from '@icon-park/svg';
+	import { Upload } from '@lucide/svelte';
     import Button from './Button.svelte';
 
     let { 
@@ -42,7 +42,7 @@
     {:else}
         <Button {variant} onclick={handleClick}>
             <div class="btn-content">
-                {@html Upload({ size: 16, strokeWidth: 3 })}
+                <Upload size={16} />
                 {label}
             </div>
         </Button>

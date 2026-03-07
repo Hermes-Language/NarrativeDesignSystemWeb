@@ -24,7 +24,7 @@
         }
     ]);
 
-    function handleChange(moduleId: string, updates: any) {
+    function handleChange(moduleId: string, updates: Record<string, any>) {
         onchange?.(updates);
     }
 </script>

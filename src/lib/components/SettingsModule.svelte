@@ -1,14 +1,24 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import Input from './Input.svelte';
     import Select from './Select.svelte';
     import Slider from './Slider.svelte';
-    import Button from './Button.svelte';
     import FileUploadButton from './FileUploadButton.svelte';
+
+    interface SettingsData {
+        prompt?: string;
+        text?: string;
+        voice?: string;
+        emotion?: number;
+        volume?: number;
+        fileName?: string;
+        [key: string]: string | number | undefined;
+    }
 
     let { 
         type = 'prompt', // 'prompt' | 'controls' | 'content' | 'overrides' | 'audio_control'
-        data = {} as any,
-        onchange = undefined as ((updates: any) => void) | undefined,
+        data = {} as SettingsData,
+        onchange = undefined as ((updates: Partial<SettingsData>) => void) | undefined,
         onreplace = undefined as (() => void) | undefined,
         useVoiceUpload = false
     } = $props();
@@ -27,7 +37,7 @@
                 multiline={true}
                 placeholder={type === 'prompt' ? "Write your prompt..." : "Enter text..."}
                 value={data.text || data.prompt}
-                oninput={(e: any) => onchange?.({ [type === 'prompt' ? 'prompt' : 'text']: e.target.value })}
+                oninput={(e: Event & { target: HTMLTextAreaElement }) => onchange?.({ [type === 'prompt' ? 'prompt' : 'text']: e.target.value })}
                 rows={5}
                 style="font-size: 0.75rem; padding: 10px 12px; border: none; height: 100%;"
             />
@@ -36,7 +46,7 @@
         <div class="controls-grid">
             {#if useVoiceUpload}
                 <div class="voice-upload-container">
-                    <span class="field-label">Voice</span>
+                    <span class="field-label">{m.voice()}</span>
                     <FileUploadButton 
                         variant="link" 
                         label={data.voice || "Click to Upload"} 
@@ -45,33 +55,33 @@
                 </div>
             {:else}
                 <Select 
-                    label="Voice"
+                    label={m.voice()}
                     options={voiceOptions}
                     value={data.voice}
-                    onchange={(e: any) => onchange?.({ voice: e.target.value })}
+                    onchange={(e: Event & { target: HTMLSelectElement }) => onchange?.({ voice: e.target.value })}
                 />
             {/if}
             <Slider 
-                label="Emotion"
+                label={m.emotion()}
                 min={0}
                 max={1}
                 step={0.1}
                 value={data.emotion}
-                oninput={(e: any) => onchange?.({ emotion: parseFloat(e.target.value) })}
+                oninput={(e: Event & { target: HTMLInputElement }) => onchange?.({ emotion: parseFloat(e.target.value) })}
             />
         </div>
     {:else if type === 'overrides'}
         <div class="controls-grid">
             <Slider 
-                label="Volume"
+                label={m.volume()}
                 min={0}
                 max={1.5}
                 step={0.05}
                 value={data.volume ?? 1.0}
-                oninput={(e: any) => onchange?.({ volume: parseFloat(e.target.value) })}
+                oninput={(e: Event & { target: HTMLInputElement }) => onchange?.({ volume: parseFloat(e.target.value) })}
             />
             <Slider 
-                label="Emphasis"
+                label={m.emphasis()}
                 min={0}
                 max={1}
                 step={0.1}
@@ -83,26 +93,26 @@
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="audio-info clickable" onclick={() => onreplace?.()}>
-                <span class="label">File Name (Click to Replace)</span>
+                <span class="label">{m.file_name_replace()}</span>
                 <span class="filename">{data.fileName}</span>
             </div>
             
             <Slider 
-                label="Volume"
+                label={m.volume()}
                 min={0}
                 max={1.5}
                 step={0.05}
                 value={data.volume ?? 1.0}
-                oninput={(e: any) => onchange?.({ volume: parseFloat(e.target.value) })}
+                oninput={(e: Event & { target: HTMLInputElement }) => onchange?.({ volume: parseFloat(e.target.value) })}
             />
 
             <Slider 
-                label="Playback Speed"
+                label={m.playback_speed()}
                 min={0.5}
                 max={2.0}
                 step={0.1}
-                value={data.playbackRate || 1.0}
-                oninput={(e: any) => onchange?.({ playbackRate: parseFloat(e.target.value) })}
+                value={typeof data.playbackRate === 'string' ? parseFloat(data.playbackRate) : (data.playbackRate ?? 1.0)}
+                oninput={(e: Event & { target: HTMLInputElement }) => onchange?.({ playbackRate: parseFloat(e.target.value) })}
             />
         </div>
     {/if}

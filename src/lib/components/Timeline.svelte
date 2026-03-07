@@ -2,15 +2,16 @@
     import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import { 
-        SettingConfig, PlayOne, Plus, PauseOne, Success, Attention, Loading,
-        Selected as CursorIcon, HandDrag as HandIcon, Scissors as RazorIcon, Pencil as PenIcon,
-        Back as UndoIcon, Next as RedoIcon, TextMessage as TtsIcon, MusicOne as AudioIcon,
-        FullScreen as FullScreenIcon, OffScreen as ExitFullScreenIcon
-    } from '@icon-park/svg';
+        Settings, Play, Plus, Pause, CircleCheck, CircleAlert, Loader,
+        MousePointer2 as CursorIcon, Hand as HandIcon, Scissors as RazorIcon, Pencil as PenIcon,
+        Undo2 as UndoIcon, Redo2 as RedoIcon, MessageSquare as TtsIcon, Music as AudioIcon,
+        Maximize as FullScreenIcon, Minimize as ExitFullScreenIcon
+    } from '@lucide/svelte';
     import SpeakerSettings from './SpeakerSettings.svelte';
     import BlockSettings from './BlockSettings.svelte';
     import Waveform from './Waveform.svelte';
     import StateSwitch from './StateSwitch.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
     interface TimelineBlock {
         id: string;
@@ -43,7 +44,7 @@
             { id: '2', speaker: 'Hero', blocks: [], prompt: '', voice: 'en-US', emotion: 0.7 }
         ] as TimelineTrack[]),
         globalAudioUrl = '', // Single audio for subtitle mode
-        onRender = (block: TimelineBlock) => Promise.resolve('https://www.w3schools.com/html/horse.ogg') // Default fallback
+        onRender = (_: TimelineBlock) => Promise.resolve('https://www.w3schools.com/html/horse.ogg') // Default fallback
     } = $props();
 
     let selectedBlockIds = $state<string[]>([]);
@@ -262,7 +263,6 @@
     let initialDuration = 0;
 
     // Resizing details
-    let resizeDir: 'end' = 'end';
     let resizeBlockId: string | null = null;
     let resizeStartPos = 0;
     let resizeStartDuration = 0;
@@ -416,7 +416,7 @@
         pushHistory();
     }
 
-    function updateBlock(blockId: string, updates: any) {
+    function updateBlock(blockId: string, updates: Partial<TimelineBlock>) {
         tracks = tracks.map(t => ({
             ...t,
             blocks: t.blocks.map(b => b.id === blockId ? { ...b, ...updates } : b)
@@ -453,12 +453,11 @@
         node.select();
     }
 
-    function startResizing(blockId: string, dir: 'end', e: PointerEvent) {
+    function startResizing(blockId: string, _: 'end', e: PointerEvent) {
         e.stopPropagation();
         e.preventDefault();
         isResizing = true;
         resizeBlockId = blockId;
-        resizeDir = dir;
         resizeStartPos = e.clientX;
         
         let targetBlock: TimelineBlock | undefined;
@@ -863,7 +862,7 @@
             e.preventDefault();
             renderSelected();
         }
-        if (e.key.toLowerCase() === 'c' && selectedBlockIds.length === 1) {
+        if (e.key.toLowerCase() === 's' && selectedBlockIds.length === 1) {
             e.preventDefault();
             const selectedId = selectedBlockIds[0];
             activeSettingsBlockId = activeSettingsBlockId === selectedId ? null : selectedId;
@@ -896,7 +895,6 @@
             const tracksArea = document.querySelector('.tracks-area');
             if (tracksArea) {
                 const rect = tracksArea.getBoundingClientRect();
-                const offsetX = e.clientX - rect.left + tracksArea.scrollLeft;
                 const offsetY = e.clientY - rect.top + tracksArea.scrollTop;
                 const trackIndex = Math.floor(offsetY / 50);
                 const targetTrack = tracks[trackIndex];
@@ -1222,12 +1220,13 @@
                 await container.requestFullscreen();
                 // If it's a mobile device, try to lock orientation to landscape
                 if (window.screen.orientation && 'lock' in window.screen.orientation) {
-                    await (window.screen.orientation as any).lock('landscape').catch((e: any) => {
+                    await (window.screen.orientation as unknown as { lock: (s: string) => Promise<void> }).lock('landscape').catch((e: Error) => {
                         console.warn("Orientation lock failed:", e);
                     });
                 }
-            } catch (err: any) {
-                console.error(`Error: ${err.message}`);
+            } catch (err) {
+                const error = err as Error;
+                console.error(`Error: ${error.message}`);
                 isFullScreen = !isFullScreen;
             }
         } else {
@@ -1273,7 +1272,7 @@
 
     <div class="timeline-header">
         <div class="sidebar-header">
-            <span class="header-label">Tracks</span>
+            <span class="header-label">{m.tracks()}</span>
         </div>
         <div class="controls-area">
             <div class="play-btn-wrapper">
@@ -1283,9 +1282,9 @@
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
                     {#if isPlaying}
-                        {@html PauseOne({ size: 16, fill: 'currentColor', theme: 'filled' })}
+                        <Pause size={16} color="currentColor" />
                     {:else}
-                        {@html PlayOne({ size: 16, fill: 'currentColor', theme: 'filled' })}
+                        <Play size={16} color="currentColor" />
                     {/if}
                 </button>
             </div>
@@ -1297,10 +1296,10 @@
             <div class="header-tools-group">
                 <div class="history-controls-container">
                     <button class="icon-btn" onclick={undo} title="Undo" disabled={historyIndex <= 0}>
-                        {@html UndoIcon({ size: 16 })}
+                        <UndoIcon size={16} />
                     </button>
                     <button class="icon-btn" onclick={redo} title="Redo" disabled={historyIndex >= history.length - 1}>
-                        {@html RedoIcon({ size: 16 })}
+                        <RedoIcon size={16} />
                     </button>
                 </div>
 
@@ -1308,10 +1307,10 @@
                     <StateSwitch 
                         class="timeline-tool-switch"
                         options={[
-                            { id: 'pointer', label: 'P', icon: CursorIcon({ size: 16, fill: 'currentColor' }) },
-                            { id: 'hand', label: 'H', icon: HandIcon({ size: 16, fill: 'currentColor' }) },
-                            { id: 'razor', label: 'R', icon: RazorIcon({ size: 16, fill: 'currentColor' }) },
-                            { id: 'pen', label: '✎', icon: PenIcon({ size: 16, fill: 'currentColor' }) }
+                            { id: 'pointer', label: 'P', icon: CursorIcon },
+                            { id: 'hand', label: 'H', icon: HandIcon },
+                            { id: 'razor', label: 'R', icon: RazorIcon },
+                            { id: 'pen', label: '✎', icon: PenIcon }
                         ]}
                         bind:activeId={currentTool}
                     />
@@ -1322,8 +1321,8 @@
                         <StateSwitch 
                             class="timeline-type-switch"
                             options={[
-                                { id: 'tts', label: 'TTS', icon: TtsIcon({ size: 14 }) },
-                                { id: 'audio', label: 'Audio', icon: AudioIcon({ size: 14 }) }
+                                { id: 'tts', label: 'TTS', icon: TtsIcon },
+                                { id: 'audio', label: 'Audio', icon: AudioIcon }
                             ]}
                             bind:activeId={pendingBlockType}
                         />
@@ -1337,7 +1336,7 @@
                     onclick={() => isMobileMenuOpen = !isMobileMenuOpen}
                     class:active={isMobileMenuOpen}
                 >
-                    {@html SettingConfig({ size: 18 })}
+                    <Settings size={18} />
                 </button>
 
                 <button 
@@ -1345,7 +1344,7 @@
                     onclick={renderSelected}
                     disabled={selectedBlockIds.length === 0}
                 >
-                    <span class="desktop-only">Render (R)</span>
+                    <span class="desktop-only">{m.render_shortcut()}</span>
                     <span class="phone-only">RD</span>
                 </button>
 
@@ -1355,9 +1354,9 @@
                     title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}
                 >
                     {#if isFullScreen}
-                        {@html ExitFullScreenIcon({ size: 16 })}
+                        <ExitFullScreenIcon size={16} />
                     {:else}
-                        {@html FullScreenIcon({ size: 16 })}
+                        <FullScreenIcon size={16} />
                     {/if}
                 </button>
             </div>
@@ -1369,10 +1368,10 @@
             <div class="mobile-tool-row">
                 <StateSwitch 
                     options={[
-                        { id: 'pointer', label: 'P', icon: CursorIcon({ size: 16 }) },
-                        { id: 'hand', label: 'H', icon: HandIcon({ size: 16 }) },
-                        { id: 'razor', label: 'R', icon: RazorIcon({ size: 16 }) },
-                        { id: 'pen', label: '✎', icon: PenIcon({ size: 16 }) }
+                        { id: 'pointer', label: 'P', icon: CursorIcon },
+                        { id: 'hand', label: 'H', icon: HandIcon },
+                        { id: 'razor', label: 'R', icon: RazorIcon },
+                        { id: 'pen', label: '✎', icon: PenIcon }
                     ]}
                     bind:activeId={currentTool}
                 />
@@ -1392,10 +1391,10 @@
             <div class="mobile-action-row">
                 <div class="history-controls">
                     <button class="icon-btn" onclick={undo} disabled={historyIndex <= 0}>
-                        {@html UndoIcon({ size: 16 })}
+                        <UndoIcon size={16} />
                     </button>
                     <button class="icon-btn" onclick={redo} disabled={historyIndex >= history.length - 1}>
-                        {@html RedoIcon({ size: 16 })}
+                        <RedoIcon size={16} />
                     </button>
                 </div>
             </div>
@@ -1405,13 +1404,12 @@
     <div class="time-ruler">
         <div class="sidebar-spacer"></div>
         <div class="ruler-viewport">
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div 
                 class="ruler-content" 
                 style="width: {timelineWidth}px; transform: translateX(-{scrollLeft}px); touch-action: none;"
                 onpointerdown={startScrubbing}
             >
-                {#each Array(Math.floor(timelineWidth / (pixelsPerSecond * 10))) as _, i}
+                {#each Array(Math.floor(timelineWidth / (pixelsPerSecond * 10))) as _, i (i)}
                     <div class="tick" style="left: {i * 10 * pixelsPerSecond}px">
                         <span class="tick-label">{formatTime(i * 10)}</span>
                     </div>
@@ -1422,7 +1420,7 @@
 
     <div class="timeline-body">
         <div class="tracks-sidebar">
-            {#each tracks as track}
+            {#each tracks as track (track.id)}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div 
@@ -1459,7 +1457,7 @@
                                 title="Speaker Settings"
                                 onclick={() => activeSettingsTrackId = activeSettingsTrackId === track.id ? null : track.id}
                             >
-                                {@html SettingConfig({ size: 14 })}
+                                <Settings size={14} />
                             </button>
 
                             {#if activeSettingsTrackId === track.id}
@@ -1478,7 +1476,7 @@
             {#if mode === 'TTS'}
                 <div class="add-track-row">
                     <button class="add-track-btn" onclick={addTrack} title="Add Speaker">
-                        {@html Plus({ size: 16 })}
+                        <Plus size={16} />
                     </button>
                 </div>
             {/if}
@@ -1501,7 +1499,7 @@
         >
             {#if isDraggingOverTimeline}
                 <div class="drop-indicator-overlay">
-                    <div class="drop-msg">Drop Audio to Add Blocks</div>
+                    <div class="drop-msg">{m.drop_audio_to_add()}</div>
                 </div>
             {/if}
 
@@ -1514,7 +1512,7 @@
                 "></div>
             {/if}
 
-            {#each tracks as track}
+            {#each tracks as track (track.id)}
                 <div 
                     class="track-lane" 
                     class:selected={selectedTrackId === track.id}
@@ -1594,7 +1592,6 @@
                                 <!-- Use SVG group for better relative local coords during drag -->
                                 <div class="envelope-handles-layer">
                                     {#each block.envelope || [] as point, i (i)}
-                                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                                         <div 
                                             class="envelope-handle"
                                             class:active={isDraggingEnvelope && envelopePointIndex === i && envelopeTargetBlockId === block.id}
@@ -1611,12 +1608,12 @@
                             <div class="block-info">
                                 <div class="block-header">
                                     {#if block.state === 'rendered'}
-                                        <span class="status-icon">{@html Success({ size: 10, fill: 'currentColor' })}</span>
+                                        <span class="status-icon"><CircleCheck size={10} color="currentColor" /></span>
                                         <span class="block-duration">{block.duration.toFixed(1)}s</span>
                                     {:else if block.state === 'failed'}
-                                        <span class="status-icon">{@html Attention({ size: 10, fill: 'currentColor' })}</span>
+                                        <span class="status-icon"><CircleAlert size={10} color="currentColor" /></span>
                                     {:else}
-                                        <span class="status-icon">{@html Loading({ size: 10, fill: 'currentColor' })}</span>
+                                        <span class="status-icon"><Loader size={10} class="animate-spin" color="currentColor" /></span>
                                     {/if}
                                 </div>
 
@@ -1652,7 +1649,7 @@
                                         type={block.type}
                                         fileName={block.fileName}
                                         playbackRate={block.playbackRate || 1.0}
-                                        onchange={(updates: any) => {
+                                        onchange={(updates: Partial<TimelineBlock>) => {
                                             updateBlock(block.id, updates);
                                         }}
                                         onreplace={() => {

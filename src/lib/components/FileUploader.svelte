@@ -1,7 +1,8 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import { fade, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
-    import { Upload } from '@icon-park/svg';
+	import { Upload } from '@lucide/svelte';
 
     let isDragging = $state(false);
     let { onUpload = undefined } = $props();
@@ -38,7 +39,6 @@
 <svelte:window ondragenter={handleWindowDragEnter} />
 
 {#if isDragging}
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
         class="upload-overlay" 
         role="presentation"
@@ -49,9 +49,9 @@
     >
         <div class="drop-zone" transition:scale={{ duration: 400, start: 0.95, easing: cubicOut }}>
             <div class="icon">
-                {@html Upload({ size: 48, strokeWidth: 2 })}
+                <Upload size={48} />
             </div>
-            <span class="text">Drop file to here</span>
+            <span class="text">{m.drop_file_here()}</span>
         </div>
     </div>
 {/if}

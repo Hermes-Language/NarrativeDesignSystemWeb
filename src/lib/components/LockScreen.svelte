@@ -1,12 +1,40 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import { fly, fade } from 'svelte/transition';
-    import { Close, Lock } from '@icon-park/svg';
+    import { onMount } from 'svelte';
     
     let {
         show = $bindable(false),
         children,
-        background = "var(--bg-color)"
+        background = "var(--bg-color)",
+        lottiePath = ""
     } = $props();
+
+    let lottieContainer = $state<HTMLElement | null>(null);
+    let lottieInstance = $state<any>(null);
+
+    async function initLottie() {
+        if (lottieContainer && lottiePath) {
+            const lottieModule = await import('lottie-web');
+            const lottie = (lottieModule as any).default || lottieModule;
+            lottieInstance = lottie.loadAnimation({
+                container: lottieContainer,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: lottiePath
+            });
+        }
+    }
+
+    onMount(() => {
+        initLottie();
+        return () => {
+            if (lottieInstance) {
+                lottieInstance.destroy();
+            }
+        };
+    });
 
     let startY = 0;
     let currentY = 0;
@@ -65,12 +93,17 @@
             transition:fly={{ y: -1000, duration: 800, opacity: 1 }}
         >
             <div class="inner-content">
-                {@render children?.()}
+                {#if lottiePath}
+                    <div bind:this={lottieContainer} class="lottie-container"></div>
+                {/if}
+                <div class="overlay-text">
+                    {@render children?.()}
+                </div>
             </div>
 
             <div class="unlock-bar">
                 <div class="line"></div>
-                <span class="unlock-text">Swipe up to unlock</span>
+                <span class="unlock-text">{m.swipe_to_unlock()}</span>
                 <div class="line"></div>
             </div>
         </div>
@@ -87,6 +120,7 @@
         z-index: 9999;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
     }
 
     .lock-screen-content {
@@ -98,17 +132,49 @@
         padding: 0;
     }
 
+    .inner-content {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+    .lottie-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+
+    .overlay-text {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        padding: 10% 10% 15% 10%;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
     .unlock-bar {
         position: absolute;
-        bottom: 2rem;
+        bottom: var(--spacing-lg);
         left: 0;
         right: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1.5rem;
+        gap: var(--spacing-md);
         color: var(--secondary-text);
-        padding: 1rem;
+        padding: var(--spacing-sm);
         z-index: 10;
         user-select: none;
         pointer-events: none;
@@ -123,26 +189,17 @@
 
     .unlock-text {
         font-family: var(--font-serif);
-        font-size: 1rem;
+        font-size: var(--font-size-base);
         letter-spacing: 0.05em;
         white-space: nowrap;
     }
 
-    .inner-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-end;
-        padding: 10% 10% 15% 10%;
-    }
-
     @media (max-width: 600px) {
-        .inner-content {
+        .overlay-text {
             align-items: center;
             padding: 10%;
         }
-        :global(.inner-content h1) {
+        :global(.overlay-text h1) {
             font-size: 2.5rem !important;
             text-align: center !important;
         }

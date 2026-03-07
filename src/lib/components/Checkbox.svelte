@@ -18,8 +18,8 @@
         font-family: var(--font-serif);
         font-size: 1.2rem;
         user-select: none;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
     }
 
     input {
@@ -37,7 +37,8 @@
         background-color: transparent;
         display: inline-block;
         position: relative;
-        transition: background-color 0.2s;
+        transition: background-color var(--transition-fast);
+        border-radius: var(--radius-none);
     }
 
     .checkbox-container:hover input ~ .checkmark {

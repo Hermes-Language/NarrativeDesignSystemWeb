@@ -20,7 +20,6 @@ export { default as Avatar } from './components/Avatar.svelte';
 export { default as Toast, addToast } from './components/Toast.svelte';
 export { default as Drawer } from './components/Drawer.svelte';
 export { default as Dropdown } from './components/Dropdown.svelte';
-export { default as TranslationArea } from './components/TranslationArea.svelte';
 export { default as FileUploader } from './components/FileUploader.svelte';
 export { default as AudioPlayer } from './components/AudioPlayer.svelte';
 export { default as SubtitleEditor } from './components/SubtitleEditor.svelte';
@@ -34,3 +33,8 @@ export { default as FileUploadButton } from './components/FileUploadButton.svelt
 export { default as StateSwitch } from './components/StateSwitch.svelte';
 export { default as LockScreen } from './components/LockScreen.svelte';
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
+export { default as ProgressBar } from './components/ProgressBar.svelte';
+export { default as ShortcutHints } from './components/ShortcutHints.svelte';
+export { default as VideoPreviewer } from './components/VideoPreviewer.svelte';
+export { default as AnnotationWrapper } from './components/AnnotationWrapper.svelte';
+export { default as AdvancedTextArea } from './components/AdvancedTextArea.svelte';

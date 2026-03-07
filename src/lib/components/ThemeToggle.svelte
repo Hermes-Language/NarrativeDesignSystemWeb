@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { m } from '$lib/paraglide/messages.js';
+	import { Sun, Moon } from '@lucide/svelte';
     import { onMount } from 'svelte';
-    import { SunOne, Moon } from '@icon-park/svg';
 
     let theme = $state('light');
     let isAnimating = $state(false);
@@ -33,11 +34,11 @@
 </script>
 
 <div class="theme-toggle-wrapper">
-    <button class="theme-toggle" onclick={toggleTheme} aria-label="Toggle theme">
+    <button class="theme-toggle" onclick={toggleTheme} aria-label={m.toggle_theme()}>
         {#if theme === 'light'}
-            {@html Moon({ size: 20 })}
+            <Sun size={20} />
         {:else}
-            {@html SunOne({ size: 20 })}
+            <Moon size={20} />
         {/if}
     </button>
 

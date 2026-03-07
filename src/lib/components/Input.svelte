@@ -38,14 +38,14 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        margin-bottom: 0.75rem;
+        margin-bottom: var(--spacing-sm);
     }
 
     label {
         font-family: var(--font-serif);
         font-size: 0.75rem;
         font-weight: 800;
-        margin-bottom: 0.25rem;
+        margin-bottom: var(--spacing-xs);
         color: var(--secondary-text);
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -59,6 +59,7 @@
         outline: none;
         color: var(--text-color);
         width: 100%;
+        transition: border-color var(--transition-fast);
     }
 
     @media (max-width: 600px) {
@@ -74,7 +75,7 @@
 
     .underline input {
         border-bottom: 1px solid var(--border-color);
-        padding: 0.25rem 0;
+        padding: var(--spacing-xs) 0;
     }
 
     .underline input::placeholder {
@@ -84,6 +85,7 @@
     .box input, .box textarea {
         border: 1px solid var(--border-color);
         padding: 0.4rem;
+        border-radius: var(--radius-none);
     }
 
     .box textarea {

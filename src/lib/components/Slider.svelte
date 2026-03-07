@@ -42,7 +42,7 @@
     .slider-container {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: var(--spacing-xs);
         width: 100%;
     }
 

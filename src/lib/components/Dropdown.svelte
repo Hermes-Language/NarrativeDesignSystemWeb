@@ -1,8 +1,14 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
-    import { Down } from '@icon-park/svg';
+	import { ArrowDown } from '@lucide/svelte';
     
-    let { label = "Options", items = [] } = $props();
+    interface DropdownItem {
+        label: string;
+        href?: string;
+        onClick?: () => void;
+    }
+
+    let { label = "Options", items = [] as DropdownItem[] } = $props();
     
     let isOpen = $state(false);
 
@@ -17,17 +23,15 @@
 
 <div class="dropdown">
     <button class="dropdown-trigger" onclick={toggle}>
-        {label} <span class="arrow" class:open={isOpen}>{@html Down({ size: 14 })}</span>
+        {label} <span class="arrow" class:open={isOpen}><ArrowDown size={14} /></span>
     </button>
 
     {#if isOpen}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="dropdown-backdrop" role="presentation" onclick={close}></div>
         <div class="dropdown-menu" transition:fade={{ duration: 100 }}>
-            {#each items as item}
+            {#each items as item (item.label)}
                 {#if item.href}
-                    <a href={item.href} class="dropdown-item" onclick={close}>{item.label}</a>
+                    <a href={item.href} class="dropdown-item" onclick={close} data-sveltekit-noscroll>{item.label}</a>
                 {:else}
                     <button class="dropdown-item" onclick={() => { item.onClick?.(); close(); }}>
                         {item.label}

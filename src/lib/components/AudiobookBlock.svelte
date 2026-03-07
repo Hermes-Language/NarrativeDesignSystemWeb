@@ -1,10 +1,8 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
-    import { Close } from '@icon-park/svg';
-    import Typography from './Typography.svelte';
+    import { X } from '@lucide/svelte';
     import SettingsModule from './SettingsModule.svelte';
     import StateSwitch from './StateSwitch.svelte';
-    import { addToast } from './Toast.svelte';
 
     interface BlockData {
         id: string;
@@ -32,7 +30,7 @@
         />
         {#if onremove}
             <button class="remove-btn" onclick={onremove} aria-label="Remove block">
-                {@html Close({ size: 16 })}
+                <X size=16 />
             </button>
         {/if}
     </div>
@@ -59,7 +57,7 @@
                     <SettingsModule 
                         type="prompt" 
                         data={{ prompt: data.prompt }} 
-                        onchange={(updates: any) => data.prompt = updates.prompt}
+                        onchange={(updates) => data.prompt = updates.prompt ?? ''}
                     />
                 {:else}
                     <div class="control-panel" in:fade={{ duration: 150 }}>
@@ -67,7 +65,7 @@
                             type="controls" 
                             useVoiceUpload={true}
                             data={{ voice: data.voice, emotion: data.emotion }} 
-                            onchange={(updates: any) => {
+                            onchange={(updates) => {
                                 if (updates.voice) data.voice = updates.voice;
                                 if (updates.emotion !== undefined) data.emotion = updates.emotion;
                             }}
@@ -126,7 +124,7 @@
     }
 
     .remove-btn:hover {
-        color: #ff4444;
+        color: var(--error-color);
     }
 
     .block-body {

@@ -1,31 +1,39 @@
 <script lang="ts">
     import { fade, slide } from 'svelte/transition';
-    import { Down, User } from '@icon-park/svg';
     import Navbar from './Navbar.svelte';
     import ThemeToggle from './ThemeToggle.svelte';
-    import { onMount } from 'svelte';
+    import { type Snippet } from 'svelte';
+    import * as m from "$lib/paraglide/messages.js";
+	import { ChevronDown, User } from '@lucide/svelte';
 
-    const navItems = [
-        { 
-            name: 'Translate', 
-            children: [
-                { name: 'Text Translation', href: '/translate/text' },
-                { name: 'Document Translation', href: '/translate/doc' },
-                { name: 'Website Translation', href: '/translate/web' }
-            ]
-        },
-        { name: 'Dictionary', href: '/dictionary' },
-        { 
-            name: 'Assistant', 
-            children: [
-                { name: 'Writing Assistant', href: '/assistant/writing' },
-                { name: 'Coding Assistant', href: '/assistant/coding' }
-            ]
-        },
-        { name: 'Reader', href: '/reader' },
-        { name: 'Editor', href: '/editor' },
-        { name: 'Advanced', href: '/advanced' }
-    ];
+    let {
+        navItems = [
+            { 
+                get name() { return m.translate() }, 
+                children: [
+                    { get name() { return m.text_translation() }, href: '/translate/text' },
+                    { get name() { return m.doc_translation() }, href: '/translate/doc' },
+                    { get name() { return m.web_translation() }, href: '/translate/web' }
+                ]
+            },
+            { get name() { return m.dictionary() }, href: '/dictionary' },
+            { 
+                get name() { return m.assistant() }, 
+                children: [
+                    { get name() { return m.writing_assistant() }, href: '/assistant/writing' },
+                    { get name() { return m.coding_assistant() }, href: '/assistant/coding' }
+                ]
+            },
+            { get name() { return m.reader() }, href: '/reader' },
+            { get name() { return m.editor() }, href: '/editor' },
+            { get name() { return m.advanced() }, href: '/advanced' }
+        ],
+        actions = undefined
+    } = $props<{
+        navItems?: unknown[];
+        actions?: Snippet;
+        children?: Snippet;
+    }>();
 
     let isMenuOpen = $state(false);
 
@@ -41,7 +49,7 @@
         <button class="logo-btn" onclick={toggleMenu} aria-expanded={isMenuOpen}>
             Hermes
             <span class="chevron" class:open={isMenuOpen}>
-                {@html Down({ size: 12 })}
+                <ChevronDown size={12} />
             </span>
         </button>
         <a href="/" class="desktop-logo">Hermes</a>
@@ -52,10 +60,11 @@
     </div>
 
     <div class="actions">
+        {@render actions?.()}
         <ThemeToggle />
         <div class="profile">
             <button aria-label="Profile">
-                {@html User({ size: 24 })}
+                <User size={24} />
             </button>
         </div>
     </div>
@@ -75,11 +84,11 @@
         display: grid;
         grid-template-columns: auto 1fr auto;
         align-items: center;
-        padding: 1.5rem 2rem;
+        padding: var(--spacing-md) var(--spacing-lg);
         background-color: var(--bg-color);
         position: relative;
         z-index: 1000;
-        gap: 2rem;
+        gap: var(--spacing-lg);
     }
 
     .nav-container {
@@ -90,14 +99,14 @@
     .actions {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: var(--spacing-md);
         justify-self: end;
     }
 
     @media (max-width: 1024px) {
         header {
-            gap: 1rem;
-            padding: 1.5rem 1rem;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-sm);
         }
     }
 

@@ -1,7 +1,8 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import { fade, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
-    import { Close } from '@icon-park/svg';
+	import { X } from '@lucide/svelte';
     
     let { 
         show = $bindable(false), 
@@ -23,7 +24,7 @@
         onclick={(e) => { if (e.target === e.currentTarget) close(); }}
         onkeydown={(e) => { if ((e.key === 'Escape' || e.key === 'Enter') && e.target === e.currentTarget) close(); }}
         transition:fade={{ duration: 300 }}
-        aria-label="Close modal"
+        aria-label={m.close_modal()}
     >
         <div 
             class="modal-box" 
@@ -31,8 +32,8 @@
         >
             <div class="modal-header">
                 <span class="modal-title">{title}</span>
-                <button class="close-icon" onclick={close} aria-label="Close">
-                    {@html Close({ size: 24 })}
+                <button class="close-icon" onclick={close} aria-label={m.close()}>
+                    <X size=20/>
                 </button>
             </div>
             <div class="modal-body">
@@ -69,7 +70,7 @@
         width: 600px;
         max-width: 90vw;
         min-height: 400px;
-        padding: 2.5rem;
+        padding: var(--spacing-lg);
         display: flex;
         flex-direction: column;
         position: relative;
@@ -82,7 +83,7 @@
             height: 100vh;
             max-width: 100vw;
             max-height: 100vh;
-            padding: 1.5rem;
+            padding: var(--spacing-md);
             border: none;
         }
     }
@@ -91,7 +92,7 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 2rem;
+        margin-bottom: var(--spacing-xl);
     }
 
     .modal-title {

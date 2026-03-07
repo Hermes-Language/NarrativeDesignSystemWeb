@@ -6,15 +6,15 @@
     <table>
         <thead>
             <tr>
-                {#each headers as header}
+                {#each headers as header (header)}
                     <th>{header}</th>
                 {/each}
             </tr>
         </thead>
         <tbody>
-            {#each data as row}
+            {#each data as row (row.id || JSON.stringify(row))}
                 <tr>
-                    {#each Object.values(row) as cell}
+                    {#each Object.values(row) as cell, i (i)}
                         <td>{cell}</td>
                     {/each}
                 </tr>

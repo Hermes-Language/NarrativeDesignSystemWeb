@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { Send } from '@icon-park/svg';
-    let { value = $bindable(""), placeholder = "Type something here...", onsend = undefined } = $props();
+    import * as m from '$lib/paraglide/messages.js';
+	import { Send } from "@lucide/svelte";
+
+    let { value = $bindable(""), placeholder = m.type_placeholder(), onsend = undefined } = $props();
 
     function handleSend() {
         if (value.trim()) {
@@ -12,8 +14,8 @@
 
 <div class="chat-input-container">
     <textarea {placeholder} bind:value></textarea>
-    <button class="send-button" onclick={handleSend} aria-label="Send">
-        {@html Send({ size: 24, fill: 'currentColor' })}
+    <button class="send-button" onclick={handleSend} aria-label={m.send()}>
+        <Send size={16} />
     </button>
 </div>
 
@@ -22,7 +24,7 @@
         position: relative;
         border: 1px solid var(--border-color);
         background: var(--bg-color);
-        padding: 1.5rem;
+        padding: var(--spacing-md);
     }
 
     textarea {
@@ -39,22 +41,22 @@
 
     @media (max-width: 600px) {
         .chat-input-container {
-            padding: 1rem;
+            padding: var(--spacing-sm);
         }
         textarea {
             font-size: 1.2rem;
             min-height: 100px;
         }
         .send-button {
-            bottom: 1rem;
-            right: 1rem;
+            bottom: var(--spacing-sm);
+            right: var(--spacing-sm);
         }
     }
 
     .send-button {
         position: absolute;
-        bottom: 1.5rem;
-        right: 1.5rem;
+        bottom: var(--spacing-md);
+        right: var(--spacing-md);
         background: var(--text-color);
         color: var(--bg-color);
         border: none;
@@ -64,7 +66,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform var(--transition-fast);
+        border-radius: var(--radius-none);
     }
 
     .send-button:hover {

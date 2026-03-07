@@ -1,15 +1,20 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
-    import { Calendar, Left, Right } from '@icon-park/svg';
+
+	import { ArrowLeft, ArrowRight, Calendar } from '@lucide/svelte';
 
     let { 
         value = $bindable(new Date().toISOString().split('T')[0]), 
+        date = $bindable(new Date()),
         label = "" 
     } = $props();
 
     let showCalendar = $state(false);
-    let date = $derived(new Date(value));
     
+    $effect(() => {
+        date = new Date(value);
+    });
+
     let currentMonth = $state(new Date().getMonth());
     let currentYear = $state(new Date().getFullYear());
 
@@ -92,7 +97,7 @@
             placeholder="Select date..."
         />
         <div class="icon">
-            {@html Calendar({ size: 18, strokeWidth: 2 })}
+            <Calendar size={18} />
         </div>
     </div>
 
@@ -102,15 +107,15 @@
         <div class="backdrop" onclick={() => showCalendar = false}></div>
         <div class="calendar" transition:fade={{ duration: 150 }}>
             <div class="calendar-header">
-                <button onclick={prevMonth}>{@html Left({ size: 16 })}</button>
+                <button onclick={prevMonth}><ArrowLeft size={16} /></button>
                 <span>{monthNames[currentMonth]} {currentYear}</span>
-                <button onclick={nextMonth}>{@html Right({ size: 16 })}</button>
+                <button onclick={nextMonth}><ArrowRight size={16} /></button>
             </div>
             <div class="calendar-grid">
-                {#each days as day}
+                {#each days as day (day)}
                     <div class="day-name">{day}</div>
                 {/each}
-                {#each calendarDays as { day, current, month, year }}
+                {#each calendarDays as { day, current, month, year } (`${year}-${month}-${day}`)}
                     <button 
                         class="day-cell" 
                         class:other-month={!current}
@@ -130,15 +135,17 @@
         position: relative;
         display: inline-flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: var(--spacing-xs);
         width: 100%;
         max-width: 240px;
     }
 
     .label {
-        font-family: var(--font-serif);
-        font-size: 0.9rem;
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
         color: var(--secondary-text);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .input-wrapper {
@@ -149,7 +156,7 @@
 
     input {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: var(--spacing-xs) 1rem;
         padding-right: 2.5rem;
         border: 1px solid var(--border-color);
         background: var(--panel-bg);
@@ -158,6 +165,12 @@
         font-size: 1rem;
         cursor: pointer;
         outline: none;
+        transition: border-color var(--transition-fast);
+        border-radius: var(--radius-none);
+    }
+
+    input:focus {
+        border-color: var(--accent-color);
     }
 
     .icon {
@@ -176,19 +189,23 @@
         right: 0;
         bottom: 0;
         z-index: 100;
+        background: var(--overlay-bg);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
     }
 
     .calendar {
         position: absolute;
         top: 100%;
         left: 0;
-        margin-top: 0.5rem;
+        margin-top: var(--spacing-xs);
         background: var(--panel-bg);
         border: 1px solid var(--border-color);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px var(--overlay-bg);
         z-index: 101;
-        padding: 1rem;
+        padding: var(--spacing-sm);
         width: 280px;
+        border-radius: var(--radius-none);
     }
 
     @media (max-width: 600px) {
@@ -200,26 +217,31 @@
             width: 90vw;
             max-width: 320px;
         }
-        .backdrop {
-            background: var(--overlay-bg);
-            backdrop-filter: blur(4px);
-        }
     }
 
     .calendar-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: var(--spacing-sm);
         font-family: var(--font-serif);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .calendar-header button {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 0.5rem;
+        padding: var(--spacing-xs);
         color: var(--text-color);
+        transition: background-color var(--transition-fast);
+        border-radius: var(--radius-sm);
+    }
+
+    .calendar-header button:hover {
+        background-color: var(--hover-bg);
     }
 
     .calendar-grid {
@@ -232,8 +254,9 @@
         text-align: center;
         font-size: 0.75rem;
         color: var(--secondary-text);
-        padding: 0.5rem 0;
+        padding: var(--spacing-xs) 0;
         font-family: var(--font-sans);
+        text-transform: uppercase;
     }
 
     .day-cell {
@@ -247,7 +270,8 @@
         font-family: var(--font-sans);
         font-size: 0.85rem;
         color: var(--text-color);
-        transition: all 0.2s;
+        transition: all var(--transition-fast);
+        border-radius: var(--radius-none);
     }
 
     .day-cell:hover {
@@ -261,5 +285,6 @@
     .day-cell.selected {
         background: var(--text-color);
         color: var(--bg-color);
+        font-weight: 600;
     }
 </style>

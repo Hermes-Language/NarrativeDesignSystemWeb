@@ -12,7 +12,8 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build -o build/storybook"
+		"build-storybook": "storybook build -o build/storybook",
+		"machine-translate": "inlang machine translate --project project.inlang"
 	},
 	"files": [
 		"dist",
@@ -38,6 +39,11 @@
 		"@chromatic-com/storybook": "^4.1.3",
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.39.1",
+		"@inlang/cli": "^3.0.0",
+		"@inlang/paraglide-js": "^2.13.2",
+		"@inlang/paraglide-sveltekit": "1.0.0-beta.7",
+		"@inlang/paraglide-vite": "^1.4.0",
+		"@lucide/svelte": "^0.577.0",
 		"@storybook/addon-a11y": "^10.1.10",
 		"@storybook/addon-docs": "^10.1.10",
 		"@storybook/addon-svelte-csf": "^5.0.10",
@@ -73,6 +79,6 @@
 		"svelte"
 	],
 	"dependencies": {
-		"@icon-park/svg": "^1.4.2"
+		"lottie-web": "^5.13.0"
 	}
 }

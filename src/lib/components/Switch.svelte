@@ -17,8 +17,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1rem;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
         font-family: var(--font-serif);
         font-size: 1.2rem;
     }
@@ -45,7 +45,7 @@
         bottom: 0;
         background-color: transparent;
         border: 1px solid var(--border-color);
-        transition: .4s;
+        transition: var(--transition-slow);
     }
 
     .slider:before {
@@ -56,7 +56,7 @@
         left: 3px;
         bottom: 3px;
         background-color: var(--text-color);
-        transition: .4s;
+        transition: var(--transition-slow);
     }
 
     input:checked + .slider {

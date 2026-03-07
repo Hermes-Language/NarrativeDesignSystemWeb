@@ -17,7 +17,6 @@
     import Toast, { addToast } from '$lib/components/Toast.svelte';
     import Drawer from '$lib/components/Drawer.svelte';
     import Dropdown from '$lib/components/Dropdown.svelte';
-    import TranslationArea from '$lib/components/TranslationArea.svelte';
     import FileUploader from '$lib/components/FileUploader.svelte';
     import AudioPlayer from '$lib/components/AudioPlayer.svelte';
     import SubtitleEditor from '$lib/components/SubtitleEditor.svelte';
@@ -30,9 +29,13 @@
     import LockScreen from '$lib/components/LockScreen.svelte';
     import StateSwitch from '$lib/components/StateSwitch.svelte';
     import Timeline from '$lib/components/Timeline.svelte';
+    import ProgressBar from '$lib/components/ProgressBar.svelte';
+    import ShortcutHints from '$lib/components/ShortcutHints.svelte';
+    import VideoPreviewer from '$lib/components/VideoPreviewer.svelte';
+    import AnnotationWrapper from '$lib/components/AnnotationWrapper.svelte';
+    import AdvancedTextArea from '$lib/components/AdvancedTextArea.svelte';
+    import * as m from '$lib/paraglide/messages.js';
 
-    let email = $state("");
-    let password = $state("");
     let chatValue = $state("");
     let sourceText = $state("");
     let targetText = $state("");
@@ -56,6 +59,17 @@
     let selectedDate = $state("2025-12-23");
     let selectedTime = $state("14:30:00");
     let sliderValue = $state(50);
+    let progressValue = $state(35);
+    let showShortcuts = $state(false);
+    let videoTime = $state(0);
+    let videoDuration = $state(0);
+    let videoPaused = $state(true);
+    let videoVolume = $state(0.7);
+    let videoMuted = $state(false);
+    let advancedText = $state("Selected this text to see the floating toolbar. It's a powerful tool for quick actions.");
+    let annotations = $state<Array<{ id: number; content: string; author: string; color?: string }>>([
+        { id: 1, content: "This is a very important point.", author: "Julia", color: "var(--accent-color)" }
+    ]);
 
     let audiobookBlocks = $state([
         { id: '1', label: 'Reader 1', content: 'The quick brown fox jumps over the lazy dog.', prompt: 'Read with a calm, steady voice.', voice: 'en-US-Wavenet-D', emotion: 0.5 }
@@ -78,7 +92,7 @@
         { id: "003", name: "Project Gamma", status: "Completed", date: "2025-11-20" }
     ];
 
-    function handleFileUpload(file: any) {
+    function handleFileUpload(file: File) {
         addToast(`File "${file.name}" uploaded successfully!`, 'success');
     }
 </script>
@@ -88,11 +102,9 @@
 <main>
     <Container size="large">
         <div class="welcome-section">
-            <Typography element="h1" align="center">Welcome back, Juila.<br/>What can I help you today?</Typography>
+            <Typography element="h1" align="center">{m.welcome_back({ name: 'Julia' })}<br/>{m.how_can_i_help()}</Typography>
             
-            <LanguageSwitcher />
-            
-            <TranslationArea bind:sourceText bind:targetText />
+            <LanguageSwitcher source={sourceText} target={targetText} />
         </div>
     </Container>
 
@@ -103,9 +115,9 @@
     <Container size="large">
         <div class="timeline-demo">
             <div class="section-header">
-                <Typography element="h2">Timeline Editor</Typography>
+                <Typography element="h2">{m.timeline_editor()}</Typography>
                 <div class="mode-switch">
-                    <Typography element="span">Mode: </Typography>
+                    <Typography element="span">{m.mode()}: </Typography>
                     <StateSwitch 
                         states={['TTS', 'Subtitle']} 
                         bind:activeState={timelineMode} 
@@ -121,9 +133,9 @@
             
             <div class="timeline-hint">
                 <Typography element="p">
-                    <b>Tips:</b> Double-click on a track to add a block. 
+                    <b>{m.tips()}:</b> {m.timeline_tip_add()} 
                     {#if timelineMode === 'TTS'}
-                        Select a block and press <b>'R'</b> to render.
+                        {m.timeline_tip_render()}
                     {/if}
                 </Typography>
             </div>
@@ -133,11 +145,11 @@
     <hr />
 
     <Container size="medium">
-        <Typography element="h2" align="center">Component Showcase</Typography>
+        <Typography element="h2" align="center">{m.component_showcase()}</Typography>
         
         <div class="showcase">
             <section>
-                <Typography element="h3">State Switch</Typography>
+                <Typography element="h3">{m.state_switch()}</Typography>
                 <StateSwitch 
                     states={["State 1", "State 2", "State 3"]} 
                     bind:activeState={currentState} 
@@ -146,7 +158,7 @@
             </section>
 
             <section>
-                <Typography element="h3">Buttons</Typography>
+                <Typography element="h3">{m.buttons()}</Typography>
                 <div class="row">
                     <Button>Text Button</Button>
                     <Button variant="box">Box Button</Button>
@@ -154,46 +166,46 @@
             </section>
 
             <section>
-                <Typography element="h3">Inputs</Typography>
+                <Typography element="h3">{m.inputs()}</Typography>
                 <Input label="Underline Input" placeholder="Type here..." />
                 <Input label="Box Input" variant="box" placeholder="Type here..." />
                 <Input label="Multiline Box" variant="box" multiline placeholder="Type here..." />
             </section>
 
             <section>
-                <Typography element="h3">File Uploads</Typography>
+                <Typography element="h3">{m.file_uploads()}</Typography>
                 <div style="display: flex; flex-direction: column; gap: 2rem;">
                     <div>
                         <Typography element="p" style="margin-bottom: 1rem; opacity: 0.6;">Static Drop Zone:</Typography>
-                        <FileDropZone onUpload={(f: any) => handleFileUpload(f)} />
+                        <FileDropZone onUpload={(f: File) => handleFileUpload(f)} />
                     </div>
                     <div style="display: flex; gap: 2rem; align-items: center;">
                         <div>
                             <Typography element="p" style="margin-bottom: 0.5rem; opacity: 0.6;">Button Trigger:</Typography>
-                            <FileUploadButton variant="box" onUpload={(f: any) => handleFileUpload(f)} />
+                            <FileUploadButton variant="box" onUpload={(f: File) => handleFileUpload(f)} />
                         </div>
                         <div>
                             <Typography element="p" style="margin-bottom: 0.5rem; opacity: 0.6;">Link Trigger:</Typography>
-                            <FileUploadButton variant="link" label="Click here to upload" onUpload={(f: any) => handleFileUpload(f)} />
+                            <FileUploadButton variant="link" label="Click here to upload" onUpload={(f: File) => handleFileUpload(f)} />
                         </div>
                     </div>
                 </div>
             </section>
 
             <section>
-                <Typography element="h3">Specialized Components</Typography>
+                <Typography element="h3">{m.specialized_components()}</Typography>
                 <Typography element="p">Language Switcher (with Mode Switch):</Typography>
-                <LanguageSwitcher />
+                <LanguageSwitcher source={sourceText} target={targetText}/>
 
                 <Typography element="p" style="margin-top: 2rem">Language Switcher (Simple):</Typography>
-                <LanguageSwitcher showModeSwitch={false} />
+                <LanguageSwitcher source={sourceText} target={targetText} showModeSwitch={false} />
                 
                 <Typography element="p" style="margin-top: 2rem">Chat Input:</Typography>
                 <ChatInput bind:value={chatValue} />
             </section>
 
             <section>
-                <Typography element="h3">Data & Selection</Typography>
+                <Typography element="h3">{m.data_selection()}</Typography>
                 <div class="row">
                     <DatePicker label="Release Date" bind:value={selectedDate} />
                     <TimeInput label="Start Time" bind:value={selectedTime} />
@@ -211,7 +223,7 @@
             </section>
 
             <section>
-                <Typography element="h3">Navigation & Feedback</Typography>
+                <Typography element="h3">{m.navigation_feedback()}</Typography>
                 <Tabs items={[
                     {id: 'tab1', label: 'Overview'},
                     {id: 'tab2', label: 'Settings'},
@@ -232,7 +244,7 @@
             </section>
 
             <section>
-                <Typography element="h3">Overlays & Tables</Typography>
+                <Typography element="h3">{m.overlays_tables()}</Typography>
                 <div class="row">
                     <Button variant="box" onclick={() => showModal = true}>Open Modal</Button>
                     <Button variant="box" onclick={() => showDrawer = true}>Open Drawer</Button>
@@ -253,15 +265,15 @@
                     <Typography>Configure your assistant preferences here.</Typography>
                     <Input label="Device Name" placeholder="Hermes-01" />
                     {#snippet footer()}
-                        <Button variant="text" onclick={() => showModal = false}>Cancel</Button>
-                        <Button variant="box" onclick={() => showModal = false}>Save Changes</Button>
+                        <Button variant="text" onclick={() => showModal = false}>{m.cancel()}</Button>
+                        <Button variant="box" onclick={() => showModal = false}>{m.save()}</Button>
                     {/snippet}
                 </Modal>
 
                 <Drawer bind:show={showDrawer} title="Activity History">
                     <Typography element="p">Recent interactions with Hermes AI.</Typography>
                     <div class="history-list">
-                        {#each Array(5) as _, i}
+                        {#each Array(5) as _, i (i)}
                             <div class="history-card">
                                 <Typography element="h3">Session {5-i}</Typography>
                                 <Typography element="p">2025-12-23 14:30</Typography>
@@ -277,7 +289,7 @@
             </section>
 
             <section>
-                <Typography element="h3">Media & Editing</Typography>
+                <Typography element="h3">{m.media_editing()}</Typography>
                 <div class="row">
                     <AudioPlayer 
                         title="Narrative Design Overview" 
@@ -289,6 +301,141 @@
                     <SubtitleEditor bind:subtitles />
                 </div>
             </section>
+
+            <section>
+                <Typography element="h3">{m.advanced_controls()}</Typography>
+                
+                <div class="showcase-item">
+                    <Typography element="p">Progress Bar with Markers:</Typography>
+                    <ProgressBar 
+                        bind:value={progressValue} 
+                        markers={[
+                            { id: 1, position: 20, label: "Intro", color: "var(--info-color)" },
+                            { id: 2, position: 55, label: "Main Scene", color: "var(--accent-color)" },
+                            { id: 3, position: 85, label: "Outro", color: "var(--success-color)" }
+                        ]}
+                        showValue={true} 
+                    />
+                </div>
+
+                <div class="showcase-item">
+                    <Typography element="p">Shortcut Hints:</Typography>
+                    <Button variant="box" onclick={() => showShortcuts = true}>
+                        Show Keyboard Shortcuts (Cmd + /)
+                    </Button>
+                    <ShortcutHints 
+                        bind:active={showShortcuts} 
+                        onClose={() => showShortcuts = false}
+                        shortcuts={[
+                            { id: '1', key: 'Ctrl + S', description: 'Save current project', category: 'File' },
+                            { id: '2', key: 'Ctrl + Z', description: 'Undo last action', category: 'Edit' },
+                            { id: '3', key: 'Space', description: 'Play / Pause Video', category: 'Playback' },
+                            { id: '4', key: 'L', description: 'Add Marker Scale', category: 'Playback' }
+                        ]}
+                    />
+                </div>
+
+                <div class="showcase-item">
+                    <Typography element="p">Video Previewer with Overlay:</Typography>
+                    <VideoPreviewer 
+                        src="https://www.w3schools.com/html/mov_bbb.mp4"
+                        bind:currentTime={videoTime}
+                        bind:duration={videoDuration}
+                        bind:paused={videoPaused}
+                        bind:volume={videoVolume}
+                        bind:muted={videoMuted}
+                    >
+                        {#snippet topLeft()}
+                            <div style="background: var(--accent-color); color: var(--bg-color); padding: 2px 8px; font-size: 0.8rem;">LIVE PREVIEW</div>
+                        {/snippet}
+                    </VideoPreviewer>
+                </div>
+
+                <div class="showcase-item">
+                    <Typography element="p">Annotation Wrapper:</Typography>
+                    <AnnotationWrapper 
+                        bind:annotations={annotations}
+                        onAddAnnotation={(content: string) => {
+                            annotations = [...annotations, { id: Date.now(), content, author: 'You' }];
+                        }}
+                        onRemoveAnnotation={(id: string | number) => {
+                            annotations = annotations.filter(a => a.id !== id);
+                        }}
+                    >
+                        <span>
+                            Hover or click this block of text to see or add annotations.
+                        </span>
+                    </AnnotationWrapper>
+                </div>
+
+                <div class="showcase-item">
+                    <Typography element="p">Advanced TextArea (Select text below to see dynamic popovers):</Typography>
+                    <AdvancedTextArea 
+                        bind:value={advancedText}
+                        actions={[
+                            { id: 'bold', label: 'Bold', onClick: (sel) => addToast(`Formatting: ${sel} as bold`) },
+                            { 
+                                id: 'dict', 
+                                label: 'Dict', 
+                                popover: dictPopover
+                            },
+                            { 
+                                id: 'ai', 
+                                label: 'AI Fix', 
+                                popover: aiPopover
+                            }
+                        ]}
+                    />
+                </div>
+
+                {#snippet dictPopover({ selection, close }: { selection: string; close: () => void })}
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <Typography element="h3" style="margin: 0; font-family: var(--font-serif);">{m.definition()}</Typography>
+                        
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <div style="width: 3px; background: var(--text-color); align-self: stretch;"></div>
+                            <Typography element="p" style="font-size: 0.9rem; margin: 0; line-height: 1.4;">
+                                Showing results for: <b style="word-break: break-all;">{selection}</b>
+                            </Typography>
+                        </div>
+
+                        <hr style="margin: 0.25rem 0; border: none; border-top: 1px solid var(--border-color); opacity: 0.3;" />
+                        
+                        <Typography element="p" style="font-size: 0.85rem; line-height: 1.6;">
+                            1. To specify or state authoritatively.
+                        </Typography>
+
+                        <Button 
+                            variant="text" 
+                            style="margin-top: 0.5rem; justify-content: flex-start; padding-left: 0;"
+                            onclick={close}
+                        >
+                            {m.close()} &nbsp; &rarr;
+                        </Button>
+                    </div>
+                {/snippet}
+
+                {#snippet aiPopover({ selection, close, replace }: { selection: string; close: () => void; replace: (t: string) => void })}
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                         <Typography element="h4" style="margin: 0;">{m.ai_assistant()}</Typography>
+                         <Typography element="p" style="font-size: 0.8rem; opacity: 0.7;">Improve your narrative structure</Typography>
+                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <Button variant="box" style="font-size: 0.8rem; justify-content: space-between;" onclick={() => { 
+                                replace("A highly professional version of: " + selection);
+                                addToast('Improved!'); 
+                            }}>
+                                Make it professional <span>✨</span>
+                            </Button>
+                            <Button variant="box" style="font-size: 0.8rem; justify-content: space-between;" onclick={() => { 
+                                replace(selection.toLowerCase());
+                                addToast('Simplified!'); 
+                            }}>
+                                Simplify <span>📝</span>
+                            </Button>
+                         </div>
+                    </div>
+                {/snippet}
+            </section>
         </div>
     </Container>
 </main>
@@ -297,7 +444,10 @@
 
 <FileUploader onUpload={handleFileUpload} />
 
-<LockScreen bind:show={showLockScreen}>
+<LockScreen 
+    bind:show={showLockScreen} 
+    lottiePath="https://lottie.host/80164628-98e3-4b6e-8566-73f1d86d639b/4S7m7W1j0Y.json"
+>
     <div style="text-align: right; max-width: 600px;">
         <Typography element="h1" style="font-size: 5rem; line-height: 1.1; font-weight: 700; margin: 0; color: #1a1a1a;">
             Do something<br/>to<br/>change the world
@@ -390,6 +540,19 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .showcase-item {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+        border: 1px dashed var(--border-color);
+        padding: 2rem;
+    }
+
+    .showcase-item:first-of-type {
+        margin-top: 0;
     }
 </style>
 

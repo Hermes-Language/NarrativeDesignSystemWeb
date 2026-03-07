@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Down } from '@icon-park/svg';
+	import { ChevronDown } from '@lucide/svelte';
     import { fade, slide } from 'svelte/transition';
 
     interface NavItem {
@@ -26,7 +26,7 @@
 <svelte:window onclick={handleGlobalClick} />
 
 <nav class="navbar" class:vertical>
-    {#each items as item}
+    {#each items as item (item.name)}
         <div class="nav-item-container">
             {#if item.children}
                 <button 
@@ -36,23 +36,25 @@
                 >
                     {item.name}
                     <span class="chevron" class:open={activeDropdown === item.name}>
-                        {@html Down({ size: 12 })}
+                        <ChevronDown size={12} />
                     </span>
                 </button>
                 
                 {#if activeDropdown === item.name}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div 
                         class="dropdown-menu" 
                         transition:transitionFn={{ duration: 150 }}
                         onclick={(e) => e.stopPropagation()}
                     >
-                        {#each item.children as child}
-                            <a href={child.href} class="dropdown-item" onclick={() => activeDropdown = null}>{child.name}</a>
+                        {#each item.children as child (child.name)}
+                            <a href={child.href ?? '#'} class="dropdown-item" onclick={() => activeDropdown = null}>{child.name}</a>
                         {/each}
                     </div>
                 {/if}
             {:else}
-                <a href={item.href} class="nav-link">{item.name}</a>
+                <a href={item.href ?? '#'} class="nav-link">{item.name}</a>
             {/if}
         </div>
     {/each}

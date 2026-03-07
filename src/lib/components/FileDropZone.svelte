@@ -1,14 +1,15 @@
 <script lang="ts">
+    import * as m from '$lib/paraglide/messages.js';
     import { fade } from 'svelte/transition';
-    import { Upload } from '@icon-park/svg';
     import Typography from './Typography.svelte';
+	import { Upload } from '@lucide/svelte';
 
     let { 
         onUpload = undefined,
         accept = "*",
         multiple = false,
-        label = "Drag and drop files here",
-        sublabel = "or click to browse"
+        label = m.drag_drop_files(),
+        sublabel = m.click_to_browse()
     } = $props();
 
     let isDragging = $state(false);
@@ -67,7 +68,7 @@
     
     <div class="content">
         <div class="icon">
-            {@html Upload({ size: 32, strokeWidth: 2 })}
+            <Upload size={32} />
         </div>
         <Typography element="p" style="margin: 0; font-weight: 500;">{label}</Typography>
         <Typography element="p" style="margin: 0; opacity: 0.5; font-size: 0.85rem;">{sublabel}</Typography>
@@ -75,7 +76,7 @@
 
     {#if isDragging}
         <div class="overlay" transition:fade={{ duration: 100 }}>
-            <Typography element="p">Drop to upload</Typography>
+            <Typography element="p">{m.drop_to_upload()}</Typography>
         </div>
     {/if}
 </div>

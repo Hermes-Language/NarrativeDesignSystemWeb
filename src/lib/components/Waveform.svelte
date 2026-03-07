@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { onMount, tick } from 'svelte';
+    interface WindowWithWebkit extends Window {
+        webkitAudioContext?: typeof AudioContext;
+    }
 
     let { src, color = 'currentColor' } = $props();
     let canvas: HTMLCanvasElement | undefined = $state();
@@ -13,7 +15,9 @@
             const arrayBuffer = await response.arrayBuffer();
             
             // Use a local audio context to decode
-            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const AudioContextClass = window.AudioContext || (window as unknown as WindowWithWebkit).webkitAudioContext;
+            if (!AudioContextClass) return;
+            const audioCtx = new AudioContextClass();
             const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
             const rawData = audioBuffer.getChannelData(0);
             

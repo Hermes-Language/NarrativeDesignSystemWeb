@@ -7,7 +7,7 @@
         {title}
     </div>
     <div class="sidebar-content">
-        {#each items as item}
+        {#each items as item (item.date)}
             <div class="history-item">
                 <span class="date">{item.date}</span>
                 <div class="line"></div>

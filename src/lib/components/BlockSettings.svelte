@@ -41,7 +41,7 @@
         ])
     ]);
 
-    function handleChange(moduleId: string, updates: any) {
+    function handleChange(moduleId: string, updates: Record<string, unknown>) {
         onchange?.(updates);
     }
 </script>

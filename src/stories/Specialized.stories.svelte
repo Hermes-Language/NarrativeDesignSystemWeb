@@ -6,6 +6,9 @@
   import Typography from '../lib/components/Typography.svelte';
   import Button from '../lib/components/Button.svelte';
 
+  let sourceText = $state("");
+  let targetText = $state("");
+
   const { Story } = defineMeta({
     title: 'Hermes/Content/Specialized',
     tags: ['autodocs'],
@@ -25,7 +28,7 @@
 <Story name="Language Switcher">
   <div style="padding: 2rem;">
     <Typography element="h3">Select Interface Language</Typography>
-    <LanguageSwitcher />
+    <LanguageSwitcher source={sourceText} target={targetText} />
   </div>
 </Story>
 

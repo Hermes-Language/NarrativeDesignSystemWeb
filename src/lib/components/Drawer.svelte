@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { fly, fade } from 'svelte/transition';
-    import { Close } from '@icon-park/svg';
+	import { X } from '@lucide/svelte';
+    import { fly, fade } from 'svelte/transition'
     
     let {
         show = $bindable(false),
@@ -29,7 +29,7 @@
         >
             <div class="drawer-header">
                 <h2 class="drawer-title">{title}</h2>
-                <button class="close-button" onclick={close}>{@html Close({ size: 24 })}</button>
+                <button class="close-button" onclick={close}><X size=24/></button>
             </div>
             <div class="drawer-body">
                 {@render children?.()}

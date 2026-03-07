@@ -4,7 +4,7 @@
 
 <div class="tabs-container">
     <div class="tabs-header">
-        {#each items as item}
+        {#each items as item (item.id)}
             <button 
                 class="tab-button" 
                 class:active={activeId === item.id}
