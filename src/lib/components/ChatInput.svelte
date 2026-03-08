@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
 	import { Send } from "@lucide/svelte";
 
     let { value = $bindable(""), placeholder = m.type_placeholder(), onsend = undefined } = $props();

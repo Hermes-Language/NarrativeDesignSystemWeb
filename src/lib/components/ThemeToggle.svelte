@@ -1,20 +1,23 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages.js';
+	import * as m from '../paraglide/messages.js';
 	import { Sun, Moon } from '@lucide/svelte';
     import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
 
     let theme = $state('light');
     let isAnimating = $state(false);
     let animationColor = $state('');
 
     onMount(() => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        theme = savedTheme;
-        document.documentElement.setAttribute('data-theme', theme);
+        if (browser) {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            theme = savedTheme;
+            document.documentElement.setAttribute('data-theme', theme);
+        }
     });
 
     async function toggleTheme() {
-        if (isAnimating) return;
+        if (!browser || isAnimating) return;
         
         const nextTheme = theme === 'light' ? 'dark' : 'light';
         animationColor = nextTheme === 'dark' ? '#000000' : '#f7f3f0';

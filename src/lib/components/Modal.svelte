@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
     import { fade, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
 	import { X } from '@lucide/svelte';
@@ -8,7 +8,8 @@
         show = $bindable(false), 
         title = "Title",
         children,
-        footer = undefined
+        footer = undefined,
+        duration = 300
     } = $props();
 
     function close() {
@@ -23,7 +24,7 @@
         tabindex="0"
         onclick={(e) => { if (e.target === e.currentTarget) close(); }}
         onkeydown={(e) => { if ((e.key === 'Escape' || e.key === 'Enter') && e.target === e.currentTarget) close(); }}
-        transition:fade={{ duration: 300 }}
+        transition:fade={{ duration }}
         aria-label={m.close_modal()}
     >
         <div 

@@ -11,7 +11,7 @@
     import BlockSettings from './BlockSettings.svelte';
     import Waveform from './Waveform.svelte';
     import StateSwitch from './StateSwitch.svelte';
-	import * as m from '$lib/paraglide/messages.js';
+	import * as m from '../paraglide/messages.js';
 
     interface TimelineBlock {
         id: string;

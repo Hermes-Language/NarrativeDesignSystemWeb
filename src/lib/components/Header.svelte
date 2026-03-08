@@ -3,7 +3,7 @@
     import Navbar from './Navbar.svelte';
     import ThemeToggle from './ThemeToggle.svelte';
     import { type Snippet } from 'svelte';
-    import * as m from "$lib/paraglide/messages.js";
+    import * as m from "../paraglide/messages.js";
 	import { ChevronDown, User } from '@lucide/svelte';
 
     let {

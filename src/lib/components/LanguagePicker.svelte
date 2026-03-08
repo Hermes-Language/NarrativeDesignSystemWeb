@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
     import { fade } from 'svelte/transition';
     import StateSwitch from './StateSwitch.svelte';
     import Modal from './Modal.svelte';
@@ -92,7 +92,7 @@
 
 <style>
     .panel-header {
-        padding-top: var(--spacing-md);
+        padding-top: var(--spacing-sm);
         padding-bottom: var(--spacing-sm);
         display: flex;
         justify-content: center;

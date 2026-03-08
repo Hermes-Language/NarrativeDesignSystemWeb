@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
     import { fade } from 'svelte/transition';
     import Typography from './Typography.svelte';
 	import { Upload } from '@lucide/svelte';

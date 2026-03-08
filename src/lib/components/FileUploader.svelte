@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
     import { fade, scale } from 'svelte/transition';
     import { cubicOut } from 'svelte/easing';
 	import { Upload } from '@lucide/svelte';

@@ -26,14 +26,17 @@
     --spacing-lg: 2.5rem;
     
     /* Animation */
-    --transition-fast: 0.2s ease;
+    --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
     --transition-slow: 0.4s ease;
+    --transition-duration-fast: 150;
+    --transition-duration-normal: 300;
+    --transition-duration-slow: 400;
     
     /* Radius */
     --radius-none: 0;
-    --radius-sm: 2px;
-    --radius-md: 4px;
+    --radius-sm: 0;
+    --radius-md: 0;
     --radius-full: 9999px;
 
     /* Semantic Colors */

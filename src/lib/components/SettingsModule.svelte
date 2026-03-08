@@ -1,5 +1,5 @@
 <script lang="ts">
-    import * as m from '$lib/paraglide/messages.js';
+    import * as m from '../paraglide/messages.js';
     import Input from './Input.svelte';
     import Select from './Select.svelte';
     import Slider from './Slider.svelte';
