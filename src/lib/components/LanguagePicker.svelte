@@ -92,7 +92,6 @@
 
 <style>
     .panel-header {
-        padding-top: var(--spacing-sm);
         padding-bottom: var(--spacing-sm);
         display: flex;
         justify-content: center;
