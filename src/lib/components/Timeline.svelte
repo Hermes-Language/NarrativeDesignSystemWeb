@@ -11,40 +11,46 @@
     import BlockSettings from './BlockSettings.svelte';
     import Waveform from './Waveform.svelte';
     import StateSwitch from './StateSwitch.svelte';
-	import * as m from '../paraglide/messages.js';
-
-    interface TimelineBlock {
-        id: string;
-        start: number; // in seconds
-        duration: number; // in seconds
-        text: string;
-        state: 'rendered' | 'failed' | 'none';
-        audioUrl?: string; // TTS audio per block
-        type?: 'tts' | 'audio'; // New: block type
-        fileName?: string; // New: audio block original file name
-        playbackRate?: number; // Speed: 0.5 - 2.0
-        volume?: number; // Volume: 0.0 - 1.0 (New)
-        envelope?: { time: number, value: number }[]; // Envelope points (New)
-        sourceDuration?: number; // To limit trimming
-    }
-
-    interface TimelineTrack {
-        id: string;
-        speaker: string;
-        blocks: TimelineBlock[];
-        prompt?: string;
-        voice?: string;
-        emotion?: number;
-    }
+    import * as m from '../paraglide/messages.js';
+    import { createId } from '../utils/createId.js';
+    import type {
+        TimelineBlock,
+        TimelineBlockType,
+        TimelineMode,
+        TimelineRenderContext,
+        TimelineTool,
+        TimelineTrack
+    } from './timeline/types.js';
+    import { clamp, estimateVisualDuration as estimateVisualDurationForScale, formatTime, getEnvelopeValue } from './timeline/math.js';
+    import { pushHistorySnapshot, redoHistory, undoHistory } from './timeline/history.js';
+    import { getAudioDuration, probeAudioDurationFromUrl } from './timeline/audio.js';
+    import {
+        addBlockToTrack,
+        addTrackToTimeline,
+        collectAllBlockIds,
+        deleteBlocksFromTracks,
+        findBlockById,
+        findBlockWithTrack,
+        resolveDragCollisionInTrack,
+        sortBlockEnvelopeInTrack,
+        splitBlockAtTime,
+        updateBlockDurationInTracks,
+        updateBlockEnvelopeInTrack,
+        updateBlockInTracks,
+        updateBlockStartInTracks,
+        updateBlockTextInTracks,
+        updateSpeakerConfigInTracks,
+        updateSpeakerNameInTracks
+    } from './timeline/trackMutations.js';
 
     let { 
-        mode = 'TTS', // 'TTS' | 'Subtitle'
+        mode = 'TTS' as TimelineMode, // 'TTS' | 'Subtitle'
         tracks = $bindable([
             { id: '1', speaker: 'Narrator', blocks: [], prompt: '', voice: 'en-US', emotion: 0.5 },
             { id: '2', speaker: 'Hero', blocks: [], prompt: '', voice: 'en-US', emotion: 0.7 }
         ] as TimelineTrack[]),
         globalAudioUrl = '', // Single audio for subtitle mode
-        onRender = (_: TimelineBlock) => Promise.resolve('https://www.w3schools.com/html/horse.ogg') // Default fallback
+        onRender = (_: TimelineRenderContext) => Promise.resolve('https://www.w3schools.com/html/horse.ogg') // Default fallback
     } = $props();
 
     let selectedBlockIds = $state<string[]>([]);
@@ -59,8 +65,8 @@
     let audioElement: HTMLAudioElement | undefined = $state();
     let currentTtsBlock = $state<TimelineBlock | null>(null);
 
-    let currentTool = $state<'pointer' | 'hand' | 'razor' | 'pen'>('pointer');
-    let pendingBlockType = $state<'tts' | 'audio'>('tts');
+    let currentTool = $state<TimelineTool>('pointer');
+    let pendingBlockType = $state<TimelineBlockType>('tts');
     let isFullScreen = $state(false);
     let isMobileMenuOpen = $state(false);
 
@@ -74,31 +80,24 @@
     let historyIndex = $state(-1);
 
     function pushHistory() {
-        const snapshot = JSON.stringify(tracks);
-        // If we are in the middle of history, clear forward
-        if (historyIndex < history.length - 1) {
-            history = history.slice(0, historyIndex + 1);
-        }
-        history.push(snapshot);
-        // Limit history size to 50
-        if (history.length > 50) {
-            history.shift();
-        } else {
-            historyIndex++;
-        }
+        const next = pushHistorySnapshot(tracks, history, historyIndex);
+        history = next.history;
+        historyIndex = next.historyIndex;
     }
 
     function undo() {
-        if (historyIndex > 0) {
-            historyIndex--;
-            tracks = JSON.parse(history[historyIndex]);
+        const next = undoHistory(history, historyIndex);
+        historyIndex = next.historyIndex;
+        if (next.tracks) {
+            tracks = next.tracks;
         }
     }
 
     function redo() {
-        if (historyIndex < history.length - 1) {
-            historyIndex++;
-            tracks = JSON.parse(history[historyIndex]);
+        const next = redoHistory(history, historyIndex);
+        historyIndex = next.historyIndex;
+        if (next.tracks) {
+            tracks = next.tracks;
         }
     }
 
@@ -187,7 +186,7 @@
                 const blockBaseVolume = targetBlock.volume ?? 1.0;
                 const envGain = getEnvelopeValue(targetBlock.envelope, relativeStart, 1.0);
                 // HTML5 Audio volume is capped at 1.0
-                audioElement.volume = Math.max(0, Math.min(1.0, blockBaseVolume * envGain));
+                audioElement.volume = clamp(blockBaseVolume * envGain, 0, 1.0);
 
                 if (currentTtsBlock?.id !== targetBlock.id) {
                     currentTtsBlock = targetBlock;
@@ -222,27 +221,6 @@
         }
     }
 
-    function getEnvelopeValue(envelope: {time: number, value: number}[] | undefined, time: number, defaultVal: number): number {
-        if (!envelope || envelope.length === 0) return defaultVal;
-        
-        const sorted = [...envelope].sort((a, b) => a.time - b.time);
-        
-        // Before the first point, use the first point's value
-        if (time <= sorted[0].time) return sorted[0].value;
-        // After the last point, use the last point's value (Correct NLE behavior)
-        if (time >= sorted[sorted.length - 1].time) return sorted[sorted.length - 1].value;
-        
-        for (let i = 0; i < sorted.length - 1; i++) {
-            const p1 = sorted[i];
-            const p2 = sorted[i + 1];
-            if (time >= p1.time && time <= p2.time) {
-                const t = (time - p1.time) / (p2.time - p1.time);
-                return p1.value + (p2.value - p1.value) * t;
-            }
-        }
-        return defaultVal;
-    }
-
     function handleAudioUpdate() {
         // In the NLE engine, we drive playheadTime from the interval,
         // but we can use this to keep them perfectly locked if needed.
@@ -273,20 +251,8 @@
     let activeSettingsBlockId = $state<string | null>(null);
     let scrollLeft = $state(0);
 
-    function formatTime(seconds: number) {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function estimateVisualDuration(text: string): number {
-        if (!text) return 1.0;
-        // Calculate duration based on text visibility rather than audio timing
-        // Goal: Ensure the block is wide enough to show most of the text at 20px/s
-        // Assuming average character width + some padding is ~9px
-        const pixelsPerChar = 9;
-        const estimatedWidth = (text.length * pixelsPerChar) + 20; // +20 for icons/padding
-        return estimatedWidth / pixelsPerSecond;
+    function estimateBlockDuration(text: string): number {
+        return estimateVisualDurationForScale(text, pixelsPerSecond);
     }
 
     function addBlock(trackId: string, e: MouseEvent | PointerEvent) {
@@ -306,9 +272,9 @@
 
         const defaultText = 'New Content Block';
         const newBlock: TimelineBlock = {
-            id: Math.random().toString(36).substring(2, 9),
+            id: createId('block'),
             start: startTime,
-            duration: estimateVisualDuration(defaultText),
+            duration: estimateBlockDuration(defaultText),
             text: defaultText,
             state: 'none',
             type: pendingBlockType,
@@ -316,12 +282,7 @@
             envelope: []
         };
 
-        tracks = tracks.map(t => {
-            if (t.id === trackId) {
-                return { ...t, blocks: [...t.blocks, newBlock] };
-            }
-            return t;
-        });
+        tracks = addBlockToTrack(tracks, trackId, newBlock);
         
         selectedBlockIds = [newBlock.id];
         pushHistory();
@@ -331,14 +292,14 @@
 
     function addTrack() {
         const newTrack: TimelineTrack = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: createId('track'),
             speaker: `Speaker ${tracks.length + 1}`,
             blocks: [],
             prompt: '',
             voice: 'en-US',
             emotion: 0.5
         };
-        tracks = [...tracks, newTrack];
+        tracks = addTrackToTimeline(tracks, newTrack);
         pushHistory();
     }
 
@@ -374,72 +335,30 @@
     }
 
     function updateSpeakerName(trackId: string, name: string, saveHistory = true) {
-        tracks = tracks.map(t => t.id === trackId ? { ...t, speaker: name } : t);
+        tracks = updateSpeakerNameInTracks(tracks, trackId, name);
         if (saveHistory) pushHistory();
     }
 
     function updateSpeakerConfig(trackId: string, updates: Partial<TimelineTrack>) {
-        tracks = tracks.map(t => {
-            if (t.id === trackId) {
-                // If core audio parameters change, reset ALL blocks in this track to none
-                const shouldResetBlocks = 
-                    (updates.voice !== undefined && updates.voice !== t.voice) ||
-                    (updates.emotion !== undefined && updates.emotion !== t.emotion) ||
-                    (updates.prompt !== undefined && updates.prompt !== t.prompt);
-                
-                return {
-                    ...t,
-                    ...updates,
-                    blocks: shouldResetBlocks 
-                        ? t.blocks.map(b => ({ 
-                            ...b, 
-                            state: 'none', 
-                            audioUrl: undefined,
-                            duration: b.type === 'audio' ? b.duration : estimateVisualDuration(b.text)
-                          }))
-                        : t.blocks
-                };
-            }
-            return t;
-        });
+        tracks = updateSpeakerConfigInTracks(tracks, trackId, updates, estimateBlockDuration);
         pushHistory();
     }
 
     function deleteSelectedBlock() {
         if (selectedBlockIds.length === 0) return;
-        tracks = tracks.map(t => ({
-            ...t,
-            blocks: t.blocks.filter(b => !selectedBlockIds.includes(b.id))
-        }));
+        tracks = deleteBlocksFromTracks(tracks, selectedBlockIds);
         selectedBlockIds = [];
         activeSettingsBlockId = null;
         pushHistory();
     }
 
     function updateBlock(blockId: string, updates: Partial<TimelineBlock>) {
-        tracks = tracks.map(t => ({
-            ...t,
-            blocks: t.blocks.map(b => b.id === blockId ? { ...b, ...updates } : b)
-        }));
+        tracks = updateBlockInTracks(tracks, blockId, updates);
         pushHistory();
     }
 
     function updateBlockText(blockId: string, text: string, saveHistory = true) {
-        tracks = tracks.map(t => ({
-            ...t,
-            blocks: t.blocks.map(b => {
-                if (b.id === blockId) {
-                    const hasChanged = b.text !== text;
-                    // Reset to unrendered if text changed
-                    const newState = hasChanged ? 'none' : b.state;
-                    // If not rendered (or just became none), update duration based on visual text length
-                    const newDuration = (newState === 'none') ? estimateVisualDuration(text) : b.duration;
-                    
-                    return { ...b, text, state: newState, duration: newDuration };
-                }
-                return b;
-            })
-        }));
+        tracks = updateBlockTextInTracks(tracks, blockId, text, estimateBlockDuration);
         if (saveHistory) pushHistory();
     }
 
@@ -459,12 +378,8 @@
         isResizing = true;
         resizeBlockId = blockId;
         resizeStartPos = e.clientX;
-        
-        let targetBlock: TimelineBlock | undefined;
-        for (const track of tracks) {
-            targetBlock = track.blocks.find(b => b.id === blockId);
-            if (targetBlock) break;
-        }
+
+        const targetBlock = findBlockById(tracks, blockId);
         if (targetBlock) {
             resizeStartDuration = targetBlock.duration;
         }
@@ -481,21 +396,14 @@
         let newDuration = resizeStartDuration + deltaSeconds;
 
         // Find block to get sourceDuration limit
-        let targetBlock: TimelineBlock | undefined;
-        for (const track of tracks) {
-            targetBlock = track.blocks.find(b => b.id === resizeBlockId);
-            if (targetBlock) break;
-        }
+        const targetBlock = findBlockById(tracks, resizeBlockId);
         
         if (targetBlock) {
             // Min 0.1s, Max sourceDuration if it exists
             const maxDuration = targetBlock.sourceDuration || 9999;
             newDuration = Math.max(0.1, Math.min(newDuration, maxDuration));
 
-            tracks = tracks.map(t => ({
-                ...t,
-                blocks: t.blocks.map(b => b.id === resizeBlockId ? { ...b, duration: newDuration } : b)
-            }));
+            tracks = updateBlockDurationInTracks(tracks, resizeBlockId, newDuration);
         }
     }
 
@@ -521,7 +429,7 @@
         dragTrackId = trackId;
         dragStartX = e.clientX;
         
-        const block = tracks.flatMap(t => t.blocks).find(b => b.id === blockId);
+        const block = findBlockById(tracks, blockId);
         if (block) {
             initialStart = block.start;
         }
@@ -547,7 +455,7 @@
         
         if (closePointIndex === -1) {
             // Add new point
-            envelope.push({ time: timeOffset, value: Math.max(0, Math.min(1.5, value)) });
+            envelope.push({ time: timeOffset, value: clamp(value, 0, 1.5) });
             envelope.sort((a, b) => a.time - b.time);
             updateBlock(blockId, { envelope });
             
@@ -611,26 +519,13 @@
             const relativeX = (e.clientX - cachedBlockRect.left);
             const relativeY = (e.clientY - cachedBlockRect.top);
             
-            const newTime = Math.max(0, Math.min(block.duration, (relativeX / cachedBlockRect.width) * block.duration));
-            const newValue = Math.max(0, Math.min(1.5, 1.5 - (relativeY / cachedBlockRect.height * 1.5)));
+            const newTime = clamp((relativeX / cachedBlockRect.width) * block.duration, 0, block.duration);
+            const newValue = clamp(1.5 - (relativeY / cachedBlockRect.height * 1.5), 0, 1.5);
 
             const newEnvelope = [...(block.envelope || [])];
             newEnvelope[envelopePointIndex] = { time: newTime, value: newValue };
-            
-            tracks = tracks.map(t => {
-                if (t.id === dragTrackId) {
-                    return {
-                        ...t,
-                        blocks: t.blocks.map(b => {
-                            if (b.id === envelopeTargetBlockId) {
-                                return { ...b, envelope: newEnvelope };
-                            }
-                            return b;
-                        })
-                    };
-                }
-                return t;
-            });
+
+            tracks = updateBlockEnvelopeInTrack(tracks, dragTrackId, envelopeTargetBlockId, newEnvelope);
             return;
         }
 
@@ -667,15 +562,7 @@
             let newStart = Math.max(0, initialStart + deltaX);
             
             // Allow overlapping during drag for better UX, will resolve on MouseUp
-            tracks = tracks.map(t => ({
-                ...t,
-                blocks: t.blocks.map(b => {
-                    if (b.id === dragTargetId) {
-                        return { ...b, start: newStart };
-                    }
-                    return b;
-                })
-            }));
+            tracks = updateBlockStartInTracks(tracks, dragTargetId, newStart);
         } else if (isResizing) {
             let newDuration = Math.max(0.5, initialDuration + deltaX);
             const block = currentTrack.blocks.find(b => b.id === dragTargetId);
@@ -687,69 +574,12 @@
                 if (collision) return;
             }
 
-            tracks = tracks.map(t => ({
-                ...t,
-                blocks: t.blocks.map(b => {
-                    if (b.id === dragTargetId) {
-                        return { ...b, duration: newDuration };
-                    }
-                    return b;
-                })
-            }));
+            tracks = updateBlockDurationInTracks(tracks, dragTargetId, newDuration);
         }
     }
 
     function resolveDragCollision(trackId: string, blockId: string) {
-        const track = tracks.find(t => t.id === trackId);
-        if (!track) return;
-        
-        const block = track.blocks.find(b => b.id === blockId);
-        if (!block) return;
-        
-        const duration = block.duration;
-        const proposedStart = block.start;
-        const others = track.blocks.filter(b => b.id !== blockId);
-        
-        // Check if there is a collision
-        const hasCollision = others.some(b => 
-            (proposedStart < (b.start + b.duration)) && ((proposedStart + duration) > b.start)
-        );
-        
-        if (!hasCollision) return;
-
-        // Find nearest valid start point
-        // Candidates: 0, and every other block's end, and every other block's start minus my duration
-        let candidates = [0];
-        others.forEach(b => {
-            candidates.push(b.start + b.duration);
-            candidates.push(Math.max(0, b.start - duration));
-        });
-
-        // Unique candidates to save computation
-        candidates = [...new Set(candidates)];
-
-        const validCandidates = candidates.filter(start => {
-            const end = start + duration;
-            return !others.some(b => 
-                (start < (b.start + b.duration)) && (end > b.start)
-            );
-        });
-
-        if (validCandidates.length > 0) {
-            const bestStart = validCandidates.reduce((prev, curr) => 
-                Math.abs(curr - proposedStart) < Math.abs(prev - proposedStart) ? curr : prev
-            );
-            
-            tracks = tracks.map(t => {
-                if (t.id === trackId) {
-                    return {
-                        ...t,
-                        blocks: t.blocks.map(b => b.id === blockId ? { ...b, start: bestStart } : b)
-                    };
-                }
-                return t;
-            });
-        }
+        tracks = resolveDragCollisionInTrack(tracks, trackId, blockId);
     }
 
     function handleMouseUp() {
@@ -764,20 +594,7 @@
         
         if (isDraggingEnvelope && envelopeTargetBlockId && dragTrackId) {
             // Final sort of points
-            tracks = tracks.map(t => {
-                if (t.id === dragTrackId) {
-                    return {
-                        ...t,
-                        blocks: t.blocks.map(b => {
-                            if (b.id === envelopeTargetBlockId && b.envelope) {
-                                return { ...b, envelope: [...b.envelope].sort((a, b) => a.time - b.time) };
-                            }
-                            return b;
-                        })
-                    };
-                }
-                return t;
-            });
+            tracks = sortBlockEnvelopeInTrack(tracks, dragTrackId, envelopeTargetBlockId);
             pushHistory();
         }
 
@@ -848,7 +665,7 @@
 
         if (e.ctrlKey && e.key.toLowerCase() === 'a') {
             e.preventDefault();
-            selectedBlockIds = tracks.flatMap(t => t.blocks.map(b => b.id));
+            selectedBlockIds = collectAllBlockIds(tracks);
             return;
         }
 
@@ -1010,7 +827,7 @@
             const audioUrl = URL.createObjectURL(file);
             
             const newBlock: TimelineBlock = {
-                id: Math.random().toString(36).substring(2, 9),
+                id: createId('block'),
                 start: currentStartTime,
                 duration: duration,
                 text: file.name,
@@ -1022,7 +839,7 @@
                 sourceDuration: duration
             };
 
-            tracks = tracks.map(t => t.id === targetTrack.id ? { ...t, blocks: [...t.blocks, newBlock] } : t);
+            tracks = addBlockToTrack(tracks, targetTrack.id, newBlock);
             
             // If dropping multiple, place them sequentially? Or stack them?
             // Usually sequential is safer if dropped on a single point.
@@ -1072,31 +889,15 @@
         if (!file.type.startsWith('audio/')) return;
         const duration = await getAudioDuration(file);
         const audioUrl = URL.createObjectURL(file);
-        
-        tracks = tracks.map(t => ({
-            ...t,
-            blocks: t.blocks.map(b => b.id === blockId ? {
-                ...b,
-                audioUrl,
-                duration: duration,
-                sourceDuration: duration,
-                fileName: file.name,
-                state: 'rendered'
-            } : b)
-        }));
-        pushHistory();
-    }
 
-    function getAudioDuration(file: File): Promise<number> {
-        return new Promise((resolve) => {
-            const audio = new Audio();
-            const url = URL.createObjectURL(file);
-            audio.src = url;
-            audio.onloadedmetadata = () => {
-                resolve(audio.duration);
-                URL.revokeObjectURL(url); // Clean up temp URL used for duration
-            };
+        tracks = updateBlockInTracks(tracks, blockId, {
+            audioUrl,
+            duration: duration,
+            sourceDuration: duration,
+            fileName: file.name,
+            state: 'rendered'
         });
+        pushHistory();
     }
 
     function splitBlockAtX(blockId: string, trackId: string, clientX: number) {
@@ -1106,34 +907,7 @@
         const offsetX = clientX - rect.left + tracksArea.scrollLeft;
         const splitTime = offsetX / pixelsPerSecond;
 
-        tracks = tracks.map(t => {
-            if (t.id !== trackId) return t;
-            
-            const blockIndex = t.blocks.findIndex(b => b.id === blockId);
-            if (blockIndex === -1) return t;
-            
-            const block = t.blocks[blockIndex];
-            if (splitTime <= block.start || splitTime >= block.start + block.duration) return t;
-
-            const part1Duration = splitTime - block.start;
-            const part2Duration = block.duration - part1Duration;
-
-            const block2: TimelineBlock = {
-                ...JSON.parse(JSON.stringify(block)),
-                id: Math.random().toString(36).substring(2, 9),
-                start: splitTime,
-                duration: part2Duration
-            };
-
-            const block1: TimelineBlock = {
-                ...block,
-                duration: part1Duration
-            };
-
-            const newBlocks = [...t.blocks];
-            newBlocks.splice(blockIndex, 1, block1, block2);
-            return { ...t, blocks: newBlocks };
-        });
+        tracks = splitBlockAtTime(tracks, trackId, blockId, splitTime, () => createId('block'));
         pushHistory();
     }
 
@@ -1144,20 +918,10 @@
         // In a full implementation, we would loop through all or queue them.
         const selectedId = selectedBlockIds[0];
 
-        // Find the block AND its parent track for full context
-        let targetBlock: TimelineBlock | undefined;
-        let targetTrack: TimelineTrack | undefined;
-        
-        for (const track of tracks) {
-            const block = track.blocks.find(b => b.id === selectedId);
-            if (block) {
-                targetBlock = block;
-                targetTrack = track;
-                break;
-            }
-        }
+        const selected = findBlockWithTrack(tracks, selectedId);
+        if (!selected) return;
 
-        if (!targetBlock || !targetTrack) return;
+        const { block: targetBlock, track: targetTrack } = selected;
 
         try {
             // Pass complete context: speaker config + block-specific text/params
@@ -1173,41 +937,14 @@
             };
 
             const audioUrl = await onRender(renderContext);
-            
-            // Fetch the actual duration of the generated audio
-            const audioProbe = new Audio(audioUrl);
-            const duration = await new Promise<number>((resolve) => {
-                audioProbe.onloadedmetadata = () => {
-                    resolve(audioProbe.duration);
-                };
-                audioProbe.onerror = () => {
-                    resolve(2.0); // Fallback if audio fails to probe
-                };
-                // Timeout safety
-                setTimeout(() => resolve(2.0), 5000);
-            });
-            
-            tracks = tracks.map(t => ({
-                ...t,
-                blocks: t.blocks.map(b => {
-                    if (b.id === selectedId) {
-                        return { ...b, state: 'rendered', audioUrl, duration };
-                    }
-                    return b;
-                })
-            }));
+
+            const duration = await probeAudioDurationFromUrl(audioUrl, 2.0, 5000);
+
+            tracks = updateBlockInTracks(tracks, selectedId, { state: 'rendered', audioUrl, duration });
             pushHistory();
         } catch (error) {
             console.error("Render failed:", error);
-            tracks = tracks.map(t => ({
-                ...t,
-                blocks: t.blocks.map(b => {
-                    if (b.id === selectedId) {
-                        return { ...b, state: 'failed' };
-                    }
-                    return b;
-                })
-            }));
+            tracks = updateBlockInTracks(tracks, selectedId, { state: 'failed' });
         }
     }
 

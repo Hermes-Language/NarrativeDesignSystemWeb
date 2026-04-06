@@ -1,6 +1,7 @@
 <script lang="ts">
     import AudiobookBlock from './AudiobookBlock.svelte';
     import Typography from './Typography.svelte';
+    import { createId } from '../utils/createId.js';
 
     interface BlockData {
         id: string;
@@ -16,7 +17,7 @@
     } = $props();
 
     function addBlock() {
-        const newId = Math.random().toString(36).substr(2, 9);
+        const newId = createId('block');
         blocks = [...blocks, {
             id: newId,
             label: `Reader ${blocks.length + 1}`,

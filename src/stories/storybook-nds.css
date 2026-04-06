@@ -1,0 +1,131 @@
+:root {
+  --nds-docs-bg: var(--bg-color);
+  --nds-docs-panel: var(--panel-bg);
+  --nds-docs-text: var(--text-color);
+  --nds-docs-muted: var(--secondary-text);
+  --nds-docs-border: var(--border-color);
+}
+
+.sbdocs,
+.sbdocs-wrapper,
+.sbdocs-content,
+.docs-story,
+.docs-story > div,
+.sb-show-main,
+.sb-main-padded {
+  background: var(--nds-docs-bg) !important;
+  color: var(--nds-docs-text) !important;
+}
+
+.sbdocs-wrapper {
+  padding: 2rem !important;
+}
+
+.sbdocs-content {
+  max-width: 980px !important;
+  font-family: var(--font-serif) !important;
+  line-height: 1.6;
+}
+
+.sbdocs-content h1,
+.sbdocs-content h2,
+.sbdocs-content h3,
+.sbdocs-content h4 {
+  font-family: var(--font-serif) !important;
+  letter-spacing: 0;
+}
+
+.sbdocs-content h1 {
+  font-size: 3.25rem;
+  margin-bottom: 1rem;
+}
+
+.sbdocs-content h2 {
+  font-size: 2.1rem;
+  border-bottom: 1px solid var(--nds-docs-border);
+  padding-bottom: 0.5rem;
+  margin-top: 2.75rem;
+}
+
+.sbdocs-content p,
+.sbdocs-content li,
+.sbdocs-content td,
+.sbdocs-content th {
+  font-size: 1.05rem;
+}
+
+.sbdocs-content table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--nds-docs-panel);
+  border: 1px solid var(--nds-docs-border);
+}
+
+.sbdocs-content th,
+.sbdocs-content td {
+  border-bottom: 1px solid var(--nds-docs-border);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+
+.sbdocs-content code {
+  font-family: var(--font-sans);
+  border: 1px solid var(--nds-docs-border);
+  background: var(--nds-docs-panel);
+  border-radius: 0;
+  padding: 0.08rem 0.3rem;
+}
+
+.sbdocs-content pre {
+  border: 1px solid var(--nds-docs-border);
+  border-radius: 0;
+  background: var(--nds-docs-panel);
+}
+
+.nds-callout {
+  border-left: 3px solid var(--nds-docs-border);
+  padding: 0.8rem 1rem;
+  background: var(--nds-docs-panel);
+  margin: 1rem 0;
+}
+
+.nds-token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.8rem;
+  margin: 1.25rem 0;
+}
+
+.nds-token-card {
+  border: 1px solid var(--nds-docs-border);
+  background: var(--nds-docs-panel);
+  padding: 0.8rem;
+}
+
+.nds-token-label {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nds-docs-muted);
+}
+
+.nds-token-value {
+  font-family: var(--font-sans);
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .sbdocs-wrapper {
+    padding: 1rem !important;
+  }
+
+  .sbdocs-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .sbdocs-content h2 {
+    font-size: 1.65rem;
+  }
+}

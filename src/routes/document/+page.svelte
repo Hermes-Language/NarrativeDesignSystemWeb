@@ -1,52 +1,24 @@
-<script lang="ts">
-    import { dev } from '$app/environment';
-    import { onMount } from 'svelte';
-
-    // In development, we point to the Storybook dev server
-    // In production, we point to the static build folder
-    const storybookUrl = dev ? 'http://localhost:6006' : '/storybook/index.html';
-    
-    let iframeElement: HTMLIFrameElement;
-
-    onMount(() => {
-        // Optional: Handle any iframe communication if needed
-    });
-</script>
-
 <svelte:head>
-    <title>Storyboard | Hermes Narrative Design</title>
+	<title>Storybook | Hermes Narrative Design</title>
 </svelte:head>
 
-<div class="document-wrapper">
-    <iframe 
-        bind:this={iframeElement}
-        src={storybookUrl} 
-        title="Hermes Storyboard"
-        frameborder="0"
-    ></iframe>
-</div>
+<main class="redirect-fallback">
+	<h1>Redirecting to Storybook...</h1>
+	<p>If this page does not redirect automatically, open <a href="/storybook/index.html">Storybook</a>.</p>
+</main>
 
 <style>
-    :global(body, html) {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-    }
+	.redirect-fallback {
+		min-height: 100vh;
+		display: grid;
+		place-content: center;
+		gap: 0.6rem;
+		text-align: center;
+		font-family: var(--font-serif);
+	}
 
-    .document-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #fff;
-        z-index: 9999;
-    }
-
-    iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
+	h1,
+	p {
+		margin: 0;
+	}
 </style>

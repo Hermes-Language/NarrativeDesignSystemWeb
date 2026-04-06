@@ -29,7 +29,25 @@
     let toolbarVisible = $state(false);
     let toolbarPosition = $state({ top: 0, left: 0 });
     let currentSelection = $state("");
+    let selectionRange = $state<{ start: number; end: number } | null>(null);
     let activeActionId = $state<string | null>(null);
+    let pendingSelectionCloseTimeout: number | null = null;
+    let positionRafId: number | null = null;
+    let mirrorStyleCacheKey = '';
+    let mirrorWidth = -1;
+
+    function getCurrentSelectionRange() {
+        if (!textarea) return null;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        if (start === null || end === null || start === end) return null;
+        return { start, end };
+    }
+
+    function clearSelectionState() {
+        selectionRange = null;
+        currentSelection = "";
+    }
 
     // Initialize mirror div for coordinate calculation
     onMount(() => {
@@ -41,9 +59,18 @@
         mirrorDiv.style.pointerEvents = 'none';
         mirrorDiv.style.top = '0';
         mirrorDiv.style.left = '0';
+        mirrorDiv.setAttribute('aria-hidden', 'true');
         document.body.appendChild(mirrorDiv);
         
         return () => {
+            if (pendingSelectionCloseTimeout !== null) {
+                clearTimeout(pendingSelectionCloseTimeout);
+                pendingSelectionCloseTimeout = null;
+            }
+            if (positionRafId !== null) {
+                cancelAnimationFrame(positionRafId);
+                positionRafId = null;
+            }
             if (mirrorDiv && mirrorDiv.parentNode) {
                 mirrorDiv.parentNode.removeChild(mirrorDiv);
             }
@@ -59,11 +86,19 @@
             'border-width', 'box-sizing', 'width', 'text-transform', 
             'letter-spacing', 'word-spacing'
         ] as const;
-        
-        propsToCopy.forEach(prop => {
-            mirrorDiv.style.setProperty(prop, style.getPropertyValue(prop));
-        });
-        mirrorDiv.style.width = textarea.clientWidth + 'px';
+
+        const nextCacheKey = propsToCopy.map(prop => style.getPropertyValue(prop)).join('|');
+        if (nextCacheKey !== mirrorStyleCacheKey) {
+            propsToCopy.forEach(prop => {
+                mirrorDiv.style.setProperty(prop, style.getPropertyValue(prop));
+            });
+            mirrorStyleCacheKey = nextCacheKey;
+        }
+
+        if (textarea.clientWidth !== mirrorWidth) {
+            mirrorDiv.style.width = `${textarea.clientWidth}px`;
+            mirrorWidth = textarea.clientWidth;
+        }
     }
 
     function getCaretCoordinates(position: number) {
@@ -78,10 +113,6 @@
         span.textContent = textarea.value.substring(position, position + 1) || '.';
         mirrorDiv.appendChild(span);
         
-        const textareaRect = textarea.getBoundingClientRect();
-        const spanRect = span.getBoundingClientRect();
-        const mirrorRect = mirrorDiv.getBoundingClientRect();
-        
         // Relative to the textarea's top-left
         const top = span.offsetTop - textarea.scrollTop;
         const left = span.offsetLeft - textarea.scrollLeft;
@@ -89,14 +120,22 @@
         return { top, left };
     }
 
+    function schedulePositionUpdate() {
+        if (positionRafId !== null) {
+            cancelAnimationFrame(positionRafId);
+        }
+        positionRafId = requestAnimationFrame(() => {
+            positionRafId = null;
+            updatePosition();
+        });
+    }
+
     function updatePosition() {
         if (!textarea || !toolbarVisible) return;
-        
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        
-        if (start !== null && end !== null && start !== end) {
-            const middle = Math.floor((start + end) / 2);
+
+        const range = selectionRange ?? getCurrentSelectionRange();
+        if (range) {
+            const middle = Math.floor((range.start + range.end) / 2);
             const coords = getCaretCoordinates(middle);
             
             // Offset to show above the selection
@@ -109,13 +148,17 @@
 
     async function handleSelection() {
         if (!textarea) return;
-        
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const hasSelection = start !== null && end !== null && start !== end;
+
+        const range = getCurrentSelectionRange();
+        const hasSelection = !!range;
         
         if (hasSelection) {
-            const newSelection = textarea.value.substring(start, end);
+            if (pendingSelectionCloseTimeout !== null) {
+                clearTimeout(pendingSelectionCloseTimeout);
+                pendingSelectionCloseTimeout = null;
+            }
+
+            const newSelection = textarea.value.substring(range.start, range.end);
             
             // Only reset if selection actually changed or we have an active popover
             if (activeActionId || (toolbarVisible && currentSelection !== newSelection)) {
@@ -127,28 +170,31 @@
             }
 
             currentSelection = newSelection;
+            selectionRange = range;
             toolbarVisible = true;
-            updatePosition();
+            schedulePositionUpdate();
         } else {
             // When selection is cleared (e.g., clicking elsewhere in the textarea)
             // we should close the toolbar/popover unless we are clicking ON the toolbar itself
-            setTimeout(() => {
+            if (pendingSelectionCloseTimeout !== null) {
+                clearTimeout(pendingSelectionCloseTimeout);
+            }
+
+            pendingSelectionCloseTimeout = window.setTimeout(() => {
+                pendingSelectionCloseTimeout = null;
                 const isFocusInContainer = container.contains(document.activeElement);
                 if (!isFocusInContainer) {
                     toolbarVisible = false;
                     activeActionId = null;
+                    clearSelectionState();
                 }
             }, 50);
         }
     }
 
-    function handleBlur() {
-        // Handled by handleSelection's timeout
-    }
-
     function handleScroll() {
         if (toolbarVisible) {
-            updatePosition();
+            schedulePositionUpdate();
         }
     }
 
@@ -170,6 +216,7 @@
         if (textarea.selectionStart === textarea.selectionEnd) {
             toolbarVisible = false;
             activeActionId = null;
+            clearSelectionState();
         }
     }
 
@@ -185,42 +232,47 @@
     });
 
     async function runAction(action: ToolbarAction) {
+        const range = selectionRange ?? getCurrentSelectionRange();
+        if (!range) return;
+        const selectedText = value.substring(range.start, range.end);
+
         if (action.popover) {
-            // Store selection state before showing popover
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
+            currentSelection = selectedText;
+            selectionRange = range;
             
             activeActionId = action.id;
             
             // Re-apply selection to keep it visible while popover is open
             await tick();
             textarea.focus();
-            textarea.setSelectionRange(start, end);
+            textarea.setSelectionRange(range.start, range.end);
             
-            updatePosition();
+            schedulePositionUpdate();
         } else {
-            action.onClick?.(currentSelection, { 
-                start: textarea.selectionStart, 
-                end: textarea.selectionEnd 
+            action.onClick?.(selectedText, {
+                start: range.start,
+                end: range.end
             });
             toolbarVisible = false;
+            clearSelectionState();
         }
     }
 
     function replaceSelection(newText: string) {
         if (!textarea) return;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        
-        const before = value.substring(0, start);
-        const after = value.substring(end);
-        
-        value = before + newText + after;
+
+        const range = selectionRange ?? getCurrentSelectionRange();
+        if (!range) return;
+
+        textarea.focus();
+        textarea.setSelectionRange(range.start, range.end);
+        textarea.setRangeText(newText, range.start, range.end, 'end');
+        value = textarea.value;
+        const newCursorPos = range.start + newText.length;
         
         // After replacing, clear selection and hide toolbar
         requestAnimationFrame(() => {
             textarea.focus();
-            const newCursorPos = start + newText.length;
             textarea.setSelectionRange(newCursorPos, newCursorPos);
             closePopover();
         });
@@ -229,6 +281,7 @@
     function closePopover() {
         activeActionId = null;
         toolbarVisible = false;
+        clearSelectionState();
         // Optional: refocus and clear selection on close if needed
         // textarea.focus();
     }

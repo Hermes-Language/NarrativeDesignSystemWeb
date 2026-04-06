@@ -18,9 +18,9 @@
         onRemoveAnnotation = (id: string | number) => {}
     } = $props();
 
-    let isHovering = $state(false);
-    let wrapperElement: HTMLElement;
     let newAnnotationText = $state("");
+    let hasAnnotations = $derived(annotations.length > 0);
+    let canAddAnnotation = $derived(newAnnotationText.trim().length > 0);
 
     function toggleActive(e?: Event) {
         if (e) {
@@ -39,25 +39,38 @@
     }
 
     function add() {
-        if (newAnnotationText.trim()) {
-            onAddAnnotation(newAnnotationText);
-            newAnnotationText = "";
+        const content = newAnnotationText.trim();
+        if (!content) return;
+        onAddAnnotation(content);
+        newAnnotationText = "";
+    }
+
+    function handleContentKeydown(e: KeyboardEvent) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleActive(e);
+        }
+    }
+
+    function handleNoteInputKeydown(e: KeyboardEvent) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            add();
         }
     }
 </script>
 
 <span 
     class="annotation-wrapper" 
-    class:has-annotations={annotations.length > 0}
-    bind:this={wrapperElement}
+    class:has-annotations={hasAnnotations}
     role="presentation"
 >
     <!-- The content being annotated (Force span for true inline behavior) -->
-    <span class="content-container" onclick={toggleActive} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && toggleActive()}>
+    <span class="content-container" onclick={toggleActive} role="button" tabindex="0" onkeydown={handleContentKeydown}>
         {@render children()}
         
         <!-- Annotation Badge/Indicator -->
-        {#if annotations.length > 0}
+        {#if hasAnnotations}
             <span class="annotation-indicator"></span>
         {/if}
     </span>
@@ -94,9 +107,9 @@
                 <textarea 
                     placeholder={m.add_annotation()} 
                     bind:value={newAnnotationText}
-                    onkeydown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), add())}
+                    onkeydown={handleNoteInputKeydown}
                 ></textarea>
-                <button class="add-note-btn" onclick={add} disabled={!newAnnotationText.trim()}>{m.add_annotation()}</button>
+                <button class="add-note-btn" onclick={add} disabled={!canAddAnnotation}>{m.add_annotation()}</button>
             </div>
         </div>
     {/if}

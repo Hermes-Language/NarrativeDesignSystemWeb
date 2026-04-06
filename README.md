@@ -50,4 +50,37 @@ pnpm build-storybook
 pnpm build
 ```
 
+## 组件库对外使用
+
+### 推荐导入方式
+
+```ts
+import {
+	Button,
+	Timeline,
+	SubtitleEditor,
+	Toast,
+	addToast,
+	createId
+} from 'narrativedesign';
+```
+
+### 默认零配置能力
+
+- 包入口会自动注入组件所需的基础样式变量（无需额外引入 `app.css`）。
+- 包入口会自动初始化 i18n（优先读取持久化语言，其次浏览器语言，最后回退 `en`）。
+
+### 手动控制语言（可选）
+
+```ts
+import { setLibraryLanguage, initializeI18n } from 'narrativedesign';
+
+setLibraryLanguage('ja');
+initializeI18n({ languageTag: 'fr', persist: true });
+```
+
+### 公共导出范围
+
+`src/lib/index.ts` 已统一导出主要组件与类型（包括 `ToastMessage` / `ToastType`），默认无需从深层路径导入。
+
 

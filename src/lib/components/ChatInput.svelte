@@ -2,7 +2,11 @@
     import * as m from '../paraglide/messages.js';
 	import { Send } from "@lucide/svelte";
 
-    let { value = $bindable(""), placeholder = m.type_placeholder(), onsend = undefined } = $props();
+    let {
+        value = $bindable(""),
+        placeholder = m.type_placeholder(),
+        onsend = undefined
+    } = $props();
 
     function handleSend() {
         if (value.trim()) {
@@ -74,7 +78,7 @@
         transform: scale(1.1);
     }
 
-    .send-button svg {
+    .send-button :global(svg) {
         transform: rotate(-45deg) translate(2px, -2px);
     }
 </style>

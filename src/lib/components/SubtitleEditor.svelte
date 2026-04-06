@@ -4,6 +4,7 @@
     import Button from './Button.svelte';
     import Typography from './Typography.svelte';
     import TimeInput from './TimeInput.svelte';
+	import { createId } from '../utils/createId.js';
 	import { ArrowRight, X } from '@lucide/svelte';
 
     interface Subtitle {
@@ -23,7 +24,7 @@
         const newStart = lastSub ? lastSub.end : "00:00:00";
         
         subtitles = [...subtitles, {
-            id: Math.random().toString(36).substr(2, 9),
+            id: createId('subtitle'),
             start: newStart,
             end: newStart,
             text: ""

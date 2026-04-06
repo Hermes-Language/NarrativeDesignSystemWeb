@@ -1,102 +1,139 @@
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Narrative Design System/Introduction" />
+<Meta title="Narrative Design System/Foundations" />
 
-<div className="hermes-docs">
-  # Narrative Design System
-  
-  **Narrative Design** is a minimalist, high-contrast design system built with **Svelte 5**. It focuses on typography, clarity, and a sophisticated aesthetic using a blend of Serif and Sans-serif typefaces.
+# Narrative Design System
 
-  ## Design Principles
-  
-  - **Minimalism**: Remove unnecessary elements to focus on content.
-  - **High Contrast**: Use black, white, and subtle grays to create a strong visual hierarchy.
-  - **Typography First**: Leveraging *EB Garamond* for narrative content and *Inter* for functional UI.
-  - **Responsive by Default**: Every component is designed to work seamlessly from mobile to desktop.
+Hermes Narrative Design System is a narrative-first visual language for content-rich interfaces. It prioritizes reading comfort, editorial clarity, restrained surfaces, and quiet interaction.
 
-  ## Mobile & Touch Strategy (Pro Optimization)
-  
-  The system has been specifically optimized for professional content creation on mobile devices and tablets, particularly focusing on a **Landscape-First** workflow.
-  
-  - **Pointer-Based Interaction**: All interactive components utilize the `PointerEvents` API rather than traditional mouse events. This ensures ultra-responsive feedback on touch screens and full support for stylus/pen input.
-  - **Orientation Awareness**: The design adapts its layout density based on device orientation. In landscape mode, headers become flattened to maximize vertical editing space.
-  - **Touch Targets**: Standard touch targets are maintained at a minimum of 44px height for accessibility, while providing high-precision modes (like the Razor tool) that allow for 1px adjustments via dedicated touch handles.
-  - **Industrial Visuals**: Maintaining a zero-radius, high-contrast aesthetic that remains legible even on smaller mobile displays.
-
-  ## Keyboard Shortcuts (Timeline)
-
-  The Pro Editor supports a full set of industry-standard keyboard shortcuts for high-speed editing:
-
-  | Shortcut | Action |
-  | :--- | :--- |
-  | `Space` | Play / Pause |
-  | `V` | Pointer Tool (Selection) |
-  | `H` | Hand Tool (Pan) |
-  | `C` | Razor Tool (Cut/Split) |
-  | `P` | Pen Tool (Draw Block) |
-  | `Delete` / `Backspace` | Delete Selected Blocks |
-  | `Ctrl + A` | Select All Blocks |
-  | `A` | Add Audio File |
-  | `R` | Render TTS (Selected) |
-  | `Ctrl + Z` | Undo |
-  | `Ctrl + Shift + Z` | Redo |
-
-  ## Component Categories
-  
-  - **Atoms**: Basic building blocks like Buttons, Inputs, and Typography.
-  - **Layout**: Structural components like Containers, Headers, and Sidebars.
-  - **Overlay**: Contextual layers like Modals, Drawers, and Toasts.
-  - **Content**: Specialized editors (Timeline Pro, Audiobook Designer).
-  - **Media**: Audio playback and file management tools.
-
-  ## Quality & Standards
-  
-  - **Accessibility**: All components are tested for WCAG compliance using `@storybook/addon-a11y`.
-  - **Testing**: Logic and interactions are verified with Vitest and Storybook's testing addon.
-  - **Documentation**: Interactive documentation is automatically generated for every component.
-
-  ## Getting Started
-  
-  To use Hermes in your project, import components from the library:
-
-  ```typescript
-  import { Button, Input, AudiobookDesigner } from '$lib';
-  ```
-
-  All components are built using Svelte 5 Runes (`$state`, `$props`, etc.) for optimal performance and reactivity.
+<div className="nds-callout">
+The system keeps a small semantic foundation that stays stable across light and dark themes.
 </div>
 
-<style>
-  {`
-    .hermes-docs {
-      font-family: 'Inter', sans-serif;
-      max-width: 800px;
-      line-height: 1.6;
-      color: #1a1a1a;
-    }
-    .hermes-docs h1 {
-      font-family: 'EB Garamond', serif;
-      font-size: 3.5rem;
-      margin-bottom: 1rem;
-    }
-    .hermes-docs h2 {
-      font-family: 'EB Garamond', serif;
-      font-size: 2rem;
-      margin-top: 3rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.5rem;
-    }
-    .hermes-docs h3 {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .hermes-docs code {
-      background: #f4f4f4;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-  `}
-</style>
+## Foundation Principles
+
+- Keep the palette narrow.
+- Let surfaces remain quiet and paper-like.
+- Use color for meaning, not decoration.
+- Preserve strong readability at all times.
+- Keep typography serif-led and editorial.
+- Use spacing as a structural tool.
+
+## Color
+
+Color defines hierarchy, surface separation, and semantic meaning. The palette is intentionally minimal with strong contrast and low decorative noise.
+
+| Token | Value | Purpose |
+| --- | --- | --- |
+| `bg-color` | `#f7f3f0` | Main canvas and base background |
+| `text-color` | `#000000` | Primary text and strong emphasis |
+| `secondary-text` | `#666666` | Supporting text and metadata |
+| `border-color` | `#000000` | Structural lines and dividers |
+| `panel-bg` | `#ffffff` | Surface background for panels |
+| `hover-bg` | `#f5f5f5` | Subtle hover surface |
+| `overlay-bg` | `rgba(0, 0, 0, 0.4)` | Backdrop and scrim |
+| `accent-color` | `#000000` | Accent and emphasis |
+| `error-color` | `#ff4444` | Error and destructive feedback |
+| `success-color` | `#4caf50` | Success and positive feedback |
+| `info-color` | `#2196f3` | Informational feedback |
+
+## Typography
+
+Typography is the primary expressive foundation. Serif is the dominant voice; sans-serif is used for operational and compact contexts.
+
+| Token | Value | Usage |
+| --- | --- | --- |
+| `font-serif` | `'EB Garamond', 'Noto Serif SC', serif` | Main narrative voice |
+| `font-sans` | `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif` | Utility and functional UI |
+
+| Role | Value |
+| --- | --- |
+| Display title | `4rem` |
+| Large heading | `2.5rem` |
+| Medium heading | `1.8rem` |
+| Body text | `1.2rem` |
+| Large body / supporting UI | `1.5rem` |
+| Supporting text | `0.9rem` |
+| Micro text | `0.85rem` |
+| Uppercase label | `0.75rem` |
+
+## Spacing
+
+Spacing supports rhythm, clarity, and calm composition.
+
+| Token | Value | Usage |
+| --- | --- | --- |
+| `spacing-xs` | `0.5rem` | Tight local spacing |
+| `spacing-sm` | `1rem` | Standard spacing |
+| `spacing-md` | `1.5rem` | Group spacing |
+| `spacing-lg` | `2.5rem` | Section spacing |
+
+## Shape
+
+Shape is intentionally minimal and structural.
+
+| Token | Value | Usage |
+| --- | --- | --- |
+| `radius-none` | `0` | Default sharp edge |
+| `radius-sm` | `0` | Minimal or no rounding |
+| `radius-md` | `0` | Minimal or no rounding |
+| `radius-full` | `9999px` | Fully rounded pill |
+
+## Motion
+
+Motion is quiet and informative. It supports context changes without drawing attention to itself.
+
+| Token | Value | Usage |
+| --- | --- | --- |
+| `transition-fast` | `0.15s ease` | Hover and lightweight feedback |
+| `transition-normal` | `0.3s ease` | Standard transitions |
+| `transition-slow` | `0.4s ease` | Larger layered transitions |
+
+## States
+
+The system uses a restrained semantic state model:
+
+- Default
+- Hover
+- Active
+- Focus
+- Disabled
+- Selected
+- Error
+- Success
+- Information
+
+State cues should rely on contrast, surface tone, and borders, not decorative effects.
+
+## Layout
+
+Layout is editorial and content-first:
+
+- Keep reading width comfortable.
+- Use vertical rhythm to organize narrative flow.
+- Keep secondary areas visually subordinate.
+- Preserve readability over density on smaller screens.
+
+## Theme
+
+Theme is semantic, not decorative. Light and dark modes share the same roles and hierarchy; only contrast values shift.
+
+<div className="nds-token-grid">
+  <div className="nds-token-card">
+    <div className="nds-token-label">Light Theme Identity</div>
+    <div className="nds-token-value">Warm, paper-like, open, editorial</div>
+  </div>
+  <div className="nds-token-card">
+    <div className="nds-token-label">Dark Theme Identity</div>
+    <div className="nds-token-value">Grounded, quiet, high-contrast, layered</div>
+  </div>
+</div>
+
+## Accessibility
+
+Accessibility is foundational, not optional:
+
+- Keep strong contrast for readable content.
+- Do not rely on color alone for meaning.
+- Keep focus and disabled states clearly visible.
+- Preserve semantics consistently in light and dark.
