@@ -1,5 +1,5 @@
-/* eslint-disable svelte/no-navigation-without-resolve */
 <script lang="ts">
+	/* eslint-disable svelte/no-navigation-without-resolve */
     import { fade, slide } from 'svelte/transition';
     import Navbar from './Navbar.svelte';
     import ThemeToggle from './ThemeToggle.svelte';

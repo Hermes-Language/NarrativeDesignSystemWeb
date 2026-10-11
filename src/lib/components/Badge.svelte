@@ -4,7 +4,7 @@
 
 <span class="badge {variant}">
     {#if variant === 'dot'}
-        <span class="dot"></span>
+        <span class="indicator"></span>
     {/if}
     {@render children?.()}
 </span>
@@ -30,7 +30,7 @@
         color: var(--text-color);
     }
 
-    .dot {
+    .indicator {
         width: 6px;
         height: 6px;
         background-color: currentColor;

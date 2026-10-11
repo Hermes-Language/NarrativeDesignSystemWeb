@@ -5,6 +5,7 @@
         href = undefined, 
         type = 'button' as 'button' | 'reset' | 'submit', 
         onclick = undefined,
+        arrow = true,
         children,
         ...rest 
     } = $props();
@@ -13,14 +14,14 @@
 {#if href}
     <a {href} class="button {variant}" {onclick} {...rest}>
         {@render children?.()}
-        {#if variant === 'text'}
+        {#if variant === 'text' && arrow}
             <span class="arrow"><ArrowRight size={16} /></span>
         {/if}
     </a>
 {:else}
     <button {type} class="button {variant}" {onclick} {...rest}>
         {@render children?.()}
-        {#if variant === 'text'}
+        {#if variant === 'text' && arrow}
             <span class="arrow"><ArrowRight size={16} /></span>
         {/if}
     </button>

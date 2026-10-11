@@ -12,7 +12,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each data as row (row.id || JSON.stringify(row))}
+            {#each data as row, i (i)}
                 <tr>
                     {#each Object.values(row) as cell, i (i)}
                         <td>{cell}</td>
